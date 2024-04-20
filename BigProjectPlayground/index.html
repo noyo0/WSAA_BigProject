@@ -107,6 +107,7 @@
         document.getElementById('createUpdateForm').style.display = "none";
     }
     function doCreate(){
+        event.preventDefault();
         console.log("Adding a wash")
         storeFormValues()
         wash = storeFormValues()
