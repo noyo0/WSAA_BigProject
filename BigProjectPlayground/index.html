@@ -7,98 +7,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">        
     </head>
     <body style="font-family: 'Roboto', sans-serif;">
-<!-- JavaScript-->
-<script>
-    function showCreate() {
-        document.getElementById('button-showCreate').style.display = "none";
-        document.getElementById('wash_list_table').style.display = "none";
-        document.getElementById('createUpdateForm').style.display = "block";
-    }
 
-    function showList() {
-        document.getElementById('button-showCreate').style.display = "block";
-        document.getElementById('wash_list_table').style.display = "block";
-        document.getElementById('createUpdateForm').style.display = "none";
-    }
-    function doCreate(){
-        console.log("Adding a wash")
-        storeFormValues()
-        console.log(storeFormValues())
-        clearForm()
-        wash = storeFormValues()
-        addWashToTable(wash) 
-        }
-    function addBookToTable(wash) {
-        //add a row to the table
-        var tableElement = document.getElementById('wash_list_table');
-        var rowElement = tableElement.insertRow(-1);
-        //add values to table
-        var cell1 = rowElement.insertCell(0);
-        cell1.innerHTML = truckwash.id;
-        var cell2 = rowElement.insertCell(1);
-        cell2.innerHTML = truckwash.date;
-        var cell3 = rowElement.insertCell(2);
-        cell3.innerHTML = truckwash.fleetNumber;
-        var cell4 = rowElement.insertCell(3);
-        cell4.innerHTML = truckwash.reg;
-        var cell5 = rowElement.insertCell(4);
-        cell5.innerHTML = truckwash.type;
-}
-        // read out values from table row to update
-    function getWashFromRow(rowElement) {
-        var truckwash = {};
-        truckwash.id = rowElement.cells[0].firstChild.textContent;
-        truckwash.date = rowElement.cells[1].firstChild.textContent;
-        truckwash.fleetNumber = rowElement.cells[2].firstChild.textContent;
-        truckwash.reg = rowElement.cells[3].firstChild.textContent;
-        truckwash.type = rowElement.cells[4].firstChild.textContent;
-        return truckwash;
-}
-// populate a form with the data for update
-    function populateFormWithWash(truckwash) {
-        var form = document.getElementById('createUpdateForm');
-        form.querySelector('input[name="id"]').disabled = true;
-        form.querySelector('input[name="id"]').value = truckwash.id;
-        form.querySelector('input[name="date"]').value = truckwash.date;
-        form.querySelector('input[name="fleet_number"]').value = truckwash.fleetNumber;
-        form.querySelector('input[name="reg"]').value = truckwash.reg;
-        var selectElement = form.querySelector('select[name="type"]');
-        selectElement.value = truckwash.type;
-}
-function showUpdate(linkElement) {
-    var rowElement = linkElement.parentNode.parentNode;
-    console.log(rowElement);
-}
-
-
-    function doUpdate(){
-        console.log("Updating a wash")
-        }
-    function doDelete(){
-        console.log("Deleting a wash")
-        }
-    function storeFormValues() {
-        var form = document.getElementById('createUpdateForm');
-        var truckwash = {};
-        truckwash.id = form.querySelector('input[name="id"]').value;
-        truckwash.date = form.querySelector('input[name="date"]').value;
-        truckwash.fleetNumber = form.querySelector('input[name="fleet_number"]').value;
-        truckwash.reg = form.querySelector('input[name="reg"]').value;
-        truckwash.type = form.querySelector('select[name="type"]').value;
-        return truckwash;
-}
-function clearForm() {
-    var form = document.getElementById('createUpdateForm');
-    form.querySelector('input[name="id"]').value = '';
-    form.querySelector('input[name="date"]').value = '';
-    form.querySelector('input[name="fleet_number"]').value = '';
-    form.querySelector('input[name="reg"]').value = '';
-    form.querySelector('select[name="type"]').value = 'instock'; // Assuming 'instock' is the default option
-}
-
-
-    
-</script>
         <div class="container">
             <div class="container">
                 <img src="img/bg_web.png" class="img-fluid" alt="Banner">
@@ -107,8 +16,8 @@ function clearForm() {
             <h1 style="color:#12226c;"> Truckwash</h1>
         </header>
         <!------List of washes--------->
-        <div id="wash_list_table">
-            <table class="table">
+        <div id="wash_list" class="container">
+            <table id="wash_list_table" class="table">
                 <thead>
                     <tr>
                         <th>id</th>
@@ -181,6 +90,116 @@ function clearForm() {
     </div>
     </div>
     </div>
+
+<!-- JavaScript-->
+<script>
+    function showCreate() {
+        document.getElementById('button-showCreate').style.display = "none";
+        //document.getElementById('wash_list_table').style.display = "none";
+        document.getElementById('wash_list').style.display = "none";
+        document.getElementById('createUpdateForm').style.display = "block";
+    }
+
+    function showList() {
+        document.getElementById('button-showCreate').style.display = "block";
+        //document.getElementById('wash_list_table').style.display = "block";
+        document.getElementById('wash_list').style.display = "block";
+        document.getElementById('createUpdateForm').style.display = "none";
+    }
+    function doCreate(){
+        console.log("Adding a wash")
+        storeFormValues()
+        wash = storeFormValues()
+        console.log(wash)
+        clearForm()
+        addWashToTable(wash)
+        showList()
+        }
+    function addWashToTable(wash) {
+        //add a row to the table
+        var tableElement = document.getElementById('wash_list_table');
+        var rowElement = tableElement.insertRow(-1);
+        //add values to table
+        var cell1 = rowElement.insertCell(0);
+        cell1.innerHTML = wash.id;
+        var cell2 = rowElement.insertCell(1);
+        cell2.innerHTML = wash.date;
+        var cell3 = rowElement.insertCell(2);
+        cell3.innerHTML = wash.fleetNumber;
+        var cell4 = rowElement.insertCell(3);
+        cell4.innerHTML = wash.reg;
+        var cell5 = rowElement.insertCell(4);
+        cell5.innerHTML = wash.type;
+        // Add Update link
+        var cell6 = rowElement.insertCell(5);
+        var updateLink = document.createElement('a');
+        updateLink.href = '#';
+        updateLink.textContent = 'Update';
+        updateLink.onclick = function() {
+            showUpdate(this);
+        };
+        cell6.appendChild(updateLink);
+        // Add Delete link
+        var cell7 = rowElement.insertCell(6);
+        var deleteLink = document.createElement('a');
+        deleteLink.href = '#';
+        deleteLink.textContent = 'Delete';
+        deleteLink.onclick = function() {
+            doDelete();
+        };
+        cell7.appendChild(deleteLink);
+}
+        // UPDATE read out values from table row to update
+    function getWashFromRow(rowElement) {
+        var update_wash = {};
+        truckwash.id = rowElement.cells[0].firstChild.textContent;
+        truckwash.date = rowElement.cells[1].firstChild.textContent;
+        truckwash.fleetNumber = rowElement.cells[2].firstChild.textContent;
+        truckwash.reg = rowElement.cells[3].firstChild.textContent;
+        truckwash.type = rowElement.cells[4].firstChild.textContent;
+        return update_wash;
+}
+    // UPDATE populate a form with the data for update
+    function populateFormWithWash(truckwash) {
+        var form = document.getElementById('createUpdateForm');
+        form.querySelector('input[name="id"]').disabled = true;
+        form.querySelector('input[name="id"]').value = truckwash.id;
+        form.querySelector('input[name="date"]').value = truckwash.date;
+        form.querySelector('input[name="fleet_number"]').value = truckwash.fleetNumber;
+        form.querySelector('input[name="reg"]').value = truckwash.reg;
+        var selectElement = form.querySelector('select[name="type"]');
+        selectElement.value = truckwash.type;
+}
+function showUpdate(linkElement) {
+    var rowElement = linkElement.parentNode.parentNode;
+    console.log(rowElement);
+}
+    function doUpdate(){
+        console.log("Updating a wash")
+        }
+    function doDelete(){
+        console.log("Deleting a wash")
+        }
+    function storeFormValues() {
+        var form = document.getElementById('createUpdateForm');
+        var wash = {};
+        wash.id = form.querySelector('input[name="id"]').value;
+        wash.date = form.querySelector('input[name="date"]').value;
+        wash.fleetNumber = form.querySelector('input[name="fleet_number"]').value;
+        wash.reg = form.querySelector('input[name="reg"]').value;
+        wash.type = form.querySelector('select[name="type"]').value;
+        return wash;
+}
+function clearForm() {
+    var form = document.getElementById('createUpdateForm');
+    form.querySelector('input[name="id"]').value = '';
+    form.querySelector('input[name="date"]').value = '';
+    form.querySelector('input[name="fleet_number"]').value = '';
+    form.querySelector('input[name="reg"]').value = '';
+    form.querySelector('select[name="type"]').value = 'instock'; // Assuming 'instock' is the default option
+}
+
+</script>
 
     </body>
 </html>
