@@ -6,6 +6,7 @@ import time
 
 def now():
         current_timestamp = time.time()
+        current_timestamp += 3600
         current_datetime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(current_timestamp))
         return(current_datetime)
 
