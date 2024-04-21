@@ -1,5 +1,5 @@
 import mysql.connector
-from config import config_mysql as cfg
+from config import TWmysql as cfg
 
 class TruckwashDAO:
     connection=""
@@ -10,10 +10,10 @@ class TruckwashDAO:
     database=   ''
     
     def __init__(self):
-        self.host=       cfg.mysql['host']
-        self.user=       cfg.mysql['user']
-        self.password=   cfg.mysql['password']
-        self.database=   cfg.mysql['database']
+        self.host=       cfg['host']
+        self.user=       cfg['user']
+        self.password=   cfg['password']
+        self.database=   cfg['database']
 
     def getcursor(self): 
         self.connection = mysql.connector.connect(
