@@ -3,6 +3,7 @@
 
 from flask import Flask
 import time
+from twDAO import truckwashDAO as DAO
 
 def now():
         current_timestamp = time.time()
@@ -14,6 +15,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+        DAO.getAll()
         return f"Hello world...     {now()}"
 
 if __name__ == "__main__":
