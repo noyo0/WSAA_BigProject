@@ -177,25 +177,26 @@ function clearForm() {
     form.querySelector('input[name="reg"]').value = '';
     form.querySelector('select[name="type"]').value = 'instock'; // Assuming 'instock' is the default option
 }
-// populate table from mysql
+// populate table from mysql with ajax -----------------
 $(document).ready(function() {
+    // AJAX request to fetch data from Flask 
         $.ajax({
-            url: "/getall",
-            method: "GET",
-            dataType: "json",
-            success: function(data) {
-                populateTable(data);
+            url: "/getall", // URL of the Flask route, that contains the DAO function to access mysql
+            method: "GET", 
+            dataType: "json", // expected data format as data in flask is jsonified
+            success: function(data) { // data = DAO.getAll()
+                populateTable(data); // java function defined below to populate table
             },
-            error: function(xhr, status, error) {
+            error: function(xhr, status, error) { // error handling + write error to console
                 console.error("Error fetching data:", error);
             }
         });
 
-        function populateTable(data) {
-            var tableBody = $('#wash_list_table tbody');
-            tableBody.empty(); // Clear existing rows
+        function populateTable(data) { // populate table function called above
+            var tableBody = $('#wash_list_table tbody'); // this is the HTML table element
+            tableBody.empty(); // Clear existing rows if there was anything in the table already
 
-            data.forEach(function(row) {
+            data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
                 var newRow = '<tr>' +
                     '<td>' + row.id + '</td>' +
                     '<td>' + row.Date + '</td>' +
