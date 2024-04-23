@@ -1,5 +1,5 @@
 import mysql.connector
-from config import TWmysql as cfg
+from config import TWlocal as cfg
 
 class TruckwashDAO:
     connection=""
