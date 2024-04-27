@@ -56,17 +56,6 @@ class TruckwashDAO:
         self.closeAll()
         return returnArray
 
-    def findByID(self, id):
-        cursor = self.getcursor()
-        sql="SELECT * FROM truckwash WHERE id = %s"
-        values = (id,)
-
-        cursor.execute(sql, values)
-        result = cursor.fetchone()
-        returnvalue = self.convertToDictionary(result)
-        self.closeAll()
-        return returnvalue
-
     def create(self, wash_data):
         cursor = self.getcursor()
         sql="INSERT INTO truckwash (Date, FleetNumber, Reg, Type) VALUES (%s, %s, %s, %s)"
@@ -75,6 +64,14 @@ class TruckwashDAO:
         self.connection.commit()
         self.closeAll()
         return wash_data
+
+    def deleteWash(self, wash_id):
+        cursor = self.getcursor()
+        sql = "DELETE FROM truckwash WHERE id = %s"
+        cursor.execute(sql, (wash_id,))
+        self.connection.commit()
+        self.closeAll()
+        return wash_id
 
     def convertToDictionary(self, resultLine):
         attkeys=['id', 'Date', 'FleetNumber', 'Reg', 'Type']

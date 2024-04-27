@@ -27,33 +27,105 @@
             </table>
         </div>
         <!------Add Wash Button--------->
-        <div><button  id="button-showCreate" class="btn btn-primary" style="background-color:#12226c" onclick="showList()">Enter new </button></div>
+        <div><button  id="button-showCreate" class="btn btn-primary" style="background-color:#12226c" onclick="goto_addwash()">Enter new </button></div>
 
-        <!------Add Wash Form--------->
-        <div id='createandUpdateForm' style="display: none" class="container">
-        <div class="row justify-content-center">
-        <div class="col-md-6">
-        <form>
-        <header><br>
-        <h3 style="color:#ffffff;background-color:#ff8c2d;">
-        Add new wash
-        </h3> 
-        </header>
-        <div class="form-group">
-            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br/> <!-- date picker calendar-->
-            <input type="text" class="form-control" placeholder="Fleet Number" type="text" name="fleet_number"><br/>
-            <input type="text" class="form-control" placeholder="Reg" type="number" name="reg"><br/>
-            Type <select class="custom-select custom-select-sm" name="type">
-                <option value="Euroliner">Euroliner</option>
-                <option value="Trailer">Trailer</option>
-                <option value="Fridge">Fridge</option>
-                <option value="Third Party">Third Party</option>
-            </select><br><br>
-            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="doCreate()">Add new wash</button></span>
-        </div>
-        </form>
     </div>
-    </div>
-    </div>
-    </div>
+    <!-- JavaScript-------------------------------------------------->
+    <script>
+        function goto_addwash() {
+            window.location.href = "http://127.0.0.1:5000/addwash";
+    }
+        fetchPopulate(); // populate with the last few rows from SQL database
+        function fetchPopulate(){
+            $.ajax({
+                url: "/getallSQL", // URL of the Flask route, that contains the DAO function to access mysql
+                method: "GET", 
+                dataType: "json", // expected data format as data in flask is jsonified
+                success: function(data) { // data = DAO.getAll()
+                    populateTable(data); // java function defined below to populate table
+                },
+                error: function(xhr, status, error) { // error handling + write error to console
+                    console.error("Error fetching data:", error);
+                }
+            });
+        }
+        function populateTable(data) { // populate table function called above
+            var tableBody = $('#wash_list_table'); // this is the HTML table element to populate
+            tableBody.empty(); // Clear existing rows if there was anything in the table already
+            data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
+                var newRow = '<tr>' +
+                    '<td>' + row.id + '</td>' +
+                    '<td>' + row.Date + '</td>' +
+                    '<td>' + row.FleetNumber + '</td>' +
+                    '<td>' + row.Reg + '</td>' +
+                    '<td>' + row.Type + '</td>' +
+                    '<td><a href="#" onclick="showUpdate(this)">Change</a></td>' +
+                    '<td><a href="#" onclick="doDelete(this)">Delete</a></td>' +
+                    '</tr>';
+                tableBody.append(newRow);
+            })
+        }
+
+//DELETE------------------------------------------------------------------------------
+    function doDelete(linkElement) {
+    var tableHeaders = document.querySelectorAll("##wash_list_table");
+    var rowElement = linkElement.parentNode.parentNode;
+    var wash_id = rowElement.cells[0].firstChild.textContent;
+        // Display SweetAlert confirmation dialog
+    var rowDetails = "";
+    for (var i = 0; i < 5; i++) {
+        var headerText = tableHeaders[i].textContent;
+        var cellContent = rowElement.cells[i].textContent;
+        // Construct the deleting row details string for alert
+        rowDetails += "<strong>" + headerText + ":</strong> " + cellContent + "<br>";
+    }
+    Swal.fire({
+        title: "Are you sure?",
+        html: "<div style='text-align: left;'>You are about to delete the following wash:<br><br>" +
+              rowDetails +
+              "<br>You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If user confirms deletion, send AJAX request to delete the wash
+            $.ajax({
+                url: "/deleteWash",  
+                method: "POST",
+                data: JSON.stringify({ "wash_id": wash_id }),  
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(response) {
+                    // If deletion is successful, show success message with SweetAlert
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your wash has been deleted.",
+                        icon: "success"
+                    }).then((result) => {
+                        // After displaying success message, reload the table
+                        fetchLimitedPopulate();
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error deleting wash:", error);
+                    // If there's an error, display an error message with SweetAlert
+                    Swal.fire({
+                        title: "Error",
+                        text: "Failed to delete wash. Please try again later.",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
+}
+            // update/change
+            function showUpdate(linkElement) {
+            var rowElement = linkElement.parentNode.parentNode;
+            console.log(rowElement);
+    }
+    </script>
     {% endblock %}

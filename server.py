@@ -59,20 +59,28 @@ def getallLimSQL():
 def addwashSQL():
     if request.method == 'POST':
         # Capture form data
-        date = request.form['date']
-        fleet_number = request.form['fleet_number']
-        reg = request.form['reg']
-        type = request.form['type']  
+        data = request.get_json()
         # Create a dictionary to store data entry to pass to DAO
         wash_data = {
-            'Date': date,
-            'FleetNumber': fleet_number,
-            'Reg': reg,
-            'Type': type
+            'Date': data['date'],
+            'FleetNumber': data['fleetNumber'],
+            'Reg': data['reg'],
+            'Type': data['type']
         }
         # pass data to DAO.create function
         DAO.create(wash_data)
+        return jsonify(wash_data)
 
+        # DELETE ---------------
+@app.route('/deleteWash', methods=['POST'])
+def deleteWash():
+    try:
+        wash_id = request.json['wash_id']  # Assuming the ID is sent in the JSON request body
+        DAO.deleteWash(wash_id)
+        return jsonify({"message": "Wash deleted successfully"})
+    except Exception as e:
+        print("Error deleting wash:", e)  # Log the error to the console
+        return jsonify({"error": "An internal server error occurred"}), 500
         
 if __name__ == "__main__":
     app.run(debug = True)
