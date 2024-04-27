@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+{% block content %}
+        <div class="container">
+            <div class="container">
+                <img src="img/bg_web.png" class="img-fluid" alt="Banner">
+            </div>
+        <header class="p-4">
+            <!--<h1 style="color:#12226c;">Wash List from layout</h1>   -->
+        </header>
+        <!------List of washes--------->
+        <div id="wash_list" class="container">
+            <table id="wash_list_table" class="table">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>Date</th>
+                        <th>Fleet Number</th>
+                        <th>Reg</th>
+                        <th>Type</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   <!-- populated dynamically by AJAX-->
+                </tbody>
+            </table>
+        </div>
+        <!------Add Wash Button--------->
+        <div><button  id="button-showCreate" class="btn btn-primary" style="background-color:#12226c" onclick="showList()">Enter new </button></div>
+
+        <!------Add Wash Form--------->
+        <div id='createandUpdateForm' style="display: none" class="container">
+        <div class="row justify-content-center">
+        <div class="col-md-6">
+        <form>
+        <header><br>
+        <h3 style="color:#ffffff;background-color:#ff8c2d;">
+        Add new wash
+        </h3> 
+        </header>
+        <div class="form-group">
+            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br/> <!-- date picker calendar-->
+            <input type="text" class="form-control" placeholder="Fleet Number" type="text" name="fleet_number"><br/>
+            <input type="text" class="form-control" placeholder="Reg" type="number" name="reg"><br/>
+            Type <select class="custom-select custom-select-sm" name="type">
+                <option value="Euroliner">Euroliner</option>
+                <option value="Trailer">Trailer</option>
+                <option value="Fridge">Fridge</option>
+                <option value="Third Party">Third Party</option>
+            </select><br><br>
+            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="doCreate()">Add new wash</button></span>
+        </div>
+        </form>
+    </div>
+    </div>
+    </div>
+    </div>
+    {% endblock %}

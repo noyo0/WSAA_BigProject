@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+{% block content %}
+<header class="p-4">
+    <h1 style="color:#12226c;"> Add wash</h1>
+</header>        
+            <div class="container">
+            <div class="container">
+                <img src="img/bg_web.png" class="img-fluid" alt="Banner">
+            </div>
+        <header class="p-4">
+            <!--<h1 style="color:#12226c;">Wash List from layout</h1>   -->
+        </header>
+        <!------List of washes--------->
+        <div id="wash_list" class="container">
+            <table id="Lim_list_table" class="table">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>Date</th>
+                        <th>Fleet Number</th>
+                        <th>Reg</th>
+                        <th>Type</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   <!-- populated dynamically by AJAX-->
+                </tbody>
+            </table>
+        </div>
+        <div id='createandUpdateForm' class="container">
+        <div class="row justify-content-center">
+        <div class="col-md-6">
+        <form>
+        <header><br>
+        <h3 style="color:#ffffff;background-color:#ff8c2d;">
+        Add new wash
+        </h3> 
+        </header>
+        <div class="form-group">
+            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br/> <!-- date picker calendar-->
+            <input type="text" class="form-control" placeholder="Fleet Number" type="text" name="fleet_number"><br/>
+            <input type="text" class="form-control" placeholder="Reg" type="number" name="reg"><br/>
+            Type <select class="custom-select custom-select-sm" name="type">
+                <option value="Euroliner">Euroliner</option>
+                <option value="Trailer">Trailer</option>
+                <option value="Fridge">Fridge</option>
+                <option value="Third Party">Third Party</option>
+            </select><br><br>
+            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="doCreate()">Add new wash</button></span>
+        </div>
+        </form>
+    </div>
+    </div>
+    </div>
+    </div>
+    <script>
+        $.ajax({
+            url: "/getallLimSQL", // URL of the Flask route, that contains the DAO function to access mysql
+            method: "GET", 
+            dataType: "json", // expected data format as data in flask is jsonified
+            success: function(data) { // data = DAO.getAll()
+                populateTable(data); // java function defined below to populate table
+            },
+            error: function(xhr, status, error) { // error handling + write error to console
+                console.error("Error fetching data:", error);
+            }
+        });
+        function populateTable(data) { // populate table function called above
+            var tableBody = $('#Lim_list_table tbody'); // this is the HTML table element to populate
+            tableBody.empty(); // Clear existing rows if there was anything in the table already
+            data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
+                var newRow = '<tr>' +
+                    '<td>' + row.id + '</td>' +
+                    '<td>' + row.Date + '</td>' +
+                    '<td>' + row.FleetNumber + '</td>' +
+                    '<td>' + row.Reg + '</td>' +
+                    '<td>' + row.Type + '</td>' +
+                    '<td><a href="#" onclick="showUpdate(this)">Update</a></td>' +
+                    '<td><a href="#" onclick="doDelete()">Delete</a></td>' +
+                    '</tr>';
+                tableBody.append(newRow);
+            })
+        }
+    </script>
+    {% endblock %}

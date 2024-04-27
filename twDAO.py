@@ -40,6 +40,21 @@ class TruckwashDAO:
         
         self.closeAll()
         return returnArray
+    
+    def getAll_limit(self,lim=5):
+        cursor = self.getcursor()
+        sql="""SELECT * FROM (
+                SELECT * FROM truckwash ORDER BY id DESC LIMIT %s
+                ) AS bottom
+                ORDER BY id ASC"""
+        cursor.execute(sql,(lim,))
+        results = cursor.fetchall()
+        returnArray = []
+        for result in results:
+            returnArray.append(self.convertToDictionary(result))
+        
+        self.closeAll()
+        return returnArray
 
     def findByID(self, id):
         cursor = self.getcursor()
@@ -52,17 +67,14 @@ class TruckwashDAO:
         self.closeAll()
         return returnvalue
 
-    def create(self, truckwash):
+    def create(self, wash_data):
         cursor = self.getcursor()
         sql="INSERT INTO truckwash (Date, FleetNumber, Reg, Type) VALUES (%s, %s, %s, %s)"
-        values = (truckwash.get("Date"), truckwash.get("FleetNumber"), truckwash.get("Reg"), truckwash.get("Type"))
+        values = (wash_data['Date'], wash_data['FleetNumber'], wash_data['Reg'], wash_data['Type'])
         cursor.execute(sql, values)
-
         self.connection.commit()
-        newid = cursor.lastrowid
-        truckwash["id"] = newid
         self.closeAll()
-        return truckwash
+        return wash_data
 
     def convertToDictionary(self, resultLine):
         attkeys=['id', 'Date', 'FleetNumber', 'Reg', 'Type']
