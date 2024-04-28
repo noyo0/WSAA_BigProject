@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}   
-            <div class="container">
+        <div class="container">
             <div class="container">
                 <img src="img/bg_web.png" class="img-fluid" alt="Banner">
             </div>
@@ -28,6 +28,10 @@
                 </tbody>
             </table>
         </div>
+        <!-- nav button to full list -->
+        <span style="display: flex; justify-content: left;">
+        <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
+        </span>
         <div id='createandUpdateForm' class="container">
         <div class="row justify-content-center">
         <div class="col-md-6">

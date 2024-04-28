@@ -1,5 +1,6 @@
 import mysql.connector
 from config import TWlocal as cfg
+import datetime
 
 class TruckwashDAO:
     connection=""
@@ -72,6 +73,18 @@ class TruckwashDAO:
         self.connection.commit()
         self.closeAll()
         return wash_id
+    
+    def changeWash(self, updatedData):
+        # Convert date to MySQL-friendly format
+        updatedData['Date'] = datetime.datetime.strptime(updatedData['Date'], '%d/%b/%Y').strftime('%Y-%m-%d')
+        
+        cursor = self.getcursor()
+        sql = "UPDATE truckwash SET Date = %s, FleetNumber = %s, Reg = %s, Type = %s WHERE id = %s"
+        values = (updatedData['Date'], updatedData['Fleet Number'], updatedData['Reg'], updatedData['Type'], updatedData['wash_id'])
+        cursor.execute(sql, values)
+        self.connection.commit()
+        self.closeAll()
+        return updatedData
 
     def convertToDictionary(self, resultLine):
         attkeys=['id', 'Date', 'FleetNumber', 'Reg', 'Type']

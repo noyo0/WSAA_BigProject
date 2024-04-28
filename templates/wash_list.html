@@ -1,15 +1,17 @@
 {% extends 'layout.html' %}
-{% block content %}
+{% block content %}   
         <div class="container">
             <div class="container">
                 <img src="img/bg_web.png" class="img-fluid" alt="Banner">
             </div>
         <header class="p-4">
             <!--<h1 style="color:#12226c;">Wash List from layout</h1>   -->
+            <h3 style="color:#12226c;"> Wash list</h3>
         </header>
+            
         <!------List of washes--------->
         <div id="wash_list" class="container">
-            <table id="wash_list_table" class="table">
+            <table id="full_list_table" class="table">
                 <thead>
                     <tr>
                         <th>id</th>
@@ -26,15 +28,15 @@
                 </tbody>
             </table>
         </div>
-        <!------Add Wash Button--------->
-        <div><button  id="button-showCreate" class="btn btn-primary" style="background-color:#12226c" onclick="goto_addwash()">Enter new </button></div>
-
-    </div>
+        <!-- nav button to add wash -->
+        <span>
+            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/addwash'">Add new wash</button>
+        </span>
+        
+        <br><br>
+    
     <!-- JavaScript-------------------------------------------------->
     <script>
-        function goto_addwash() {
-            window.location.href = "http://127.0.0.1:5000/addwash";
-    }
         fetchPopulate(); // populate with the last few rows from SQL database
         function fetchPopulate(){
             $.ajax({
@@ -50,7 +52,7 @@
             });
         }
         function populateTable(data) { // populate table function called above
-            var tableBody = $('#wash_list_table'); // this is the HTML table element to populate
+            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
             tableBody.empty(); // Clear existing rows if there was anything in the table already
             data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
                 var newRow = '<tr>' +
@@ -59,16 +61,41 @@
                     '<td>' + row.FleetNumber + '</td>' +
                     '<td>' + row.Reg + '</td>' +
                     '<td>' + row.Type + '</td>' +
-                    '<td><a href="#" onclick="showUpdate(this)">Change</a></td>' +
+                    '<td><a href="#" onclick="doChange(this)">Change</a></td>' +
                     '<td><a href="#" onclick="doDelete(this)">Delete</a></td>' +
                     '</tr>';
                 tableBody.append(newRow);
             })
         }
+        function storeFormValues() {
+            var form = document.getElementById('createandUpdateForm');
+            var wash = {};
+            wash.date = form.querySelector('input[name="date"]').value;
+            wash.fleetNumber = form.querySelector('input[name="fleet_number"]').value;
+            wash.reg = form.querySelector('input[name="reg"]').value;
+            wash.type = form.querySelector('select[name="type"]').value;
+            console.log(wash)
+            return wash;
+}
+        function addWashToDatabase() {
+            var wash = storeFormValues(); // Get the form values
+            $.ajax({ // Send the wash data to the server using AJAX
+                url: "/addwashSQL", // URL of the Flask route that saves the new wash data
+                method: "POST",
+                data: JSON.stringify(wash),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(response) {
+                    fetchLimitedPopulate()
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error saving wash data:", error);
+                }}
+            )}
 
 //DELETE------------------------------------------------------------------------------
     function doDelete(linkElement) {
-    var tableHeaders = document.querySelectorAll("##wash_list_table");
+    var tableHeaders = document.querySelectorAll("#full_list_table th");
     var rowElement = linkElement.parentNode.parentNode;
     var wash_id = rowElement.cells[0].firstChild.textContent;
         // Display SweetAlert confirmation dialog
@@ -79,7 +106,7 @@
         // Construct the deleting row details string for alert
         rowDetails += "<strong>" + headerText + ":</strong> " + cellContent + "<br>";
     }
-    Swal.fire({
+    Swal.fire({//SweetAlert2 popup message handler module
         title: "Are you sure?",
         html: "<div style='text-align: left;'>You are about to delete the following wash:<br><br>" +
               rowDetails +
@@ -106,7 +133,7 @@
                         icon: "success"
                     }).then((result) => {
                         // After displaying success message, reload the table
-                        fetchLimitedPopulate();
+                        fetchPopulate();
                     });
                 },
                 error: function(xhr, status, error) {
@@ -122,10 +149,82 @@
         }
     });
 }
-            // update/change
-            function showUpdate(linkElement) {
-            var rowElement = linkElement.parentNode.parentNode;
-            console.log(rowElement);
+            // update/change-------------------------------------------------------------------------------------
+    function doChange(linkElement) {
+        var tableHeaders = document.querySelectorAll("#full_list_table th");
+        var rowElement = linkElement.parentNode.parentNode;
+        var wash_id = rowElement.cells[0].firstChild.textContent;
+        var rowDetails = "";
+
+        for (var i = 1; i < tableHeaders.length-2; i++) { //show only manual entry fields (skip ID and leave out buttons from the row)
+            var headerText = tableHeaders[i].textContent;
+            var cellContent = rowElement.cells[i].textContent;
+                
+                if (headerText === "Type") {
+                // Create a dropdown for the Type field
+                rowDetails += "<div class='form-group'><label for='edit-" + i + "'>" + headerText + ":</label><select class='custom-select custom-select-sm' id='edit-" + i + "'>";
+                var typeOptions = ["Euroliner", "Trailer", "Fridge", "Third Party"];
+                for (var j = 0; j < typeOptions.length; j++) {
+                    var selected = (typeOptions[j] === cellContent) ? "selected" : "";
+                    rowDetails += "<option value='" + typeOptions[j] + "' " + selected + ">" + typeOptions[j] + "</option>";
+                }
+                rowDetails += "</select></div>";
+            } else {
+                // Create an input field for other fields
+                rowDetails += "<div class='form-group'><label for='edit-" + i + "'>" + headerText + ":</label><input type='text' class='form-control' id='edit-" + i + "' value='" + cellContent + "'></div>";
+            }
+        }
+
+        Swal.fire({//SweetAlert2 popup message handler module
+            title: "Edit Wash",
+            html: "<div style='text-align: left;'>" + rowDetails + "</div>",
+            showCancelButton: true,
+            confirmButtonText: "Save Changes",
+            preConfirm: () => {
+                var updatedData = {};
+                for (var i = 1; i < tableHeaders.length-2; i++) { //store only manual entry fields (skip ID and leave out buttons from the row)
+                    var headerText = tableHeaders[i].textContent;
+                    var inputValue = document.getElementById('edit-' + i).value;
+                    if (headerText === "Type") {
+                        inputValue = document.getElementById('edit-' + i).value;
+                    }
+                    updatedData[headerText] = inputValue;
+                }
+                updatedData['wash_id'] = wash_id;
+                console.log(updatedData);
+                return updatedData;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to update the wash
+                $.ajax({
+                    url: "/updateWash",
+                    method: "POST",
+                    data: JSON.stringify(result.value),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(response) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Your wash has been updated.",
+                            icon: "success"
+                        }).then((result) => {
+                            fetchPopulate();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("SQL query executed:", response.sql_query);
+                        console.error("Error updating wash:", error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "Failed to update wash. Please try again later.",
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
+
     }
     </script>
     {% endblock %}

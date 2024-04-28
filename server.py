@@ -45,7 +45,7 @@ def getallSQL():
         entry['Date'] = entry['Date'].strftime('%d/%b/%Y')  # Assuming 'Date' is a datetime object
     return jsonify(data)
         
-                # Read all with limit (default 5)------------------
+        # Read all with limit (default 5)------------------
 @app.route('/getallLimSQL', methods=['GET']) # this is getting mysql data for the washlikst at @/wash
 def getallLimSQL():
     data = DAO.getAll_limit(5)
@@ -54,7 +54,7 @@ def getallLimSQL():
         entry['Date'] = entry['Date'].strftime('%d/%b/%Y')  # Assuming 'Date' is a datetime object
     return jsonify(data)
 
-        # Add data -------------------
+        # CREATE -------------------
 @app.route('/addwashSQL', methods=['POST'])  # This route handles form submissions
 def addwashSQL():
     if request.method == 'POST':
@@ -70,6 +70,17 @@ def addwashSQL():
         # pass data to DAO.create function
         DAO.create(wash_data)
         return jsonify(wash_data)
+    
+    # UPDATE --------------------------------------------
+@app.route('/updateWash', methods=['POST'])
+def update_wash():
+    if request.method == 'POST':
+        # Capture JSON data
+        data = request.get_json()
+        # pass data to DAO.changeWash function
+        updated_data = DAO.changeWash(data)
+        return jsonify(updated_data)
+
 
         # DELETE ---------------
 @app.route('/deleteWash', methods=['POST'])
