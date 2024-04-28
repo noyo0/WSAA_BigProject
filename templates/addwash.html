@@ -1,15 +1,18 @@
 {% extends 'layout.html' %}
-{% block content %}   
-        <div class="container">
-            <div class="container">
-                <img src="img/bg_web.png" class="img-fluid" alt="Banner">
-            </div>
-        <header class="p-4">
-            <!--<h1 style="color:#12226c;">Wash List from layout</h1>   -->
-            <h3 style="color:#12226c;"> Recently added</h3>
-        </header>
-            
-        <!------List of washes--------->
+{% block content %}
+<div>
+    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <a class="nav-link" id="v-pills-home-tab" data-toggle="pill" href="/" role="tab" aria-controls="v-pills-home" aria-selected="false">Home</a>
+        <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="/washlist" role="tab" aria-controls="v-pills-profile" aria-selected="false">Wash List</a>
+        <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="/addwash" role="tab" aria-controls="v-pills-messages" aria-selected="true">Add Wash</a>
+      </div>
+      </div>
+</div>
+</div>
+<header class="p-4">
+    <h3 style="color:#12226c;"> Add wash</h3>
+</header>          
+<!------limited List of washes--------->
         <div id="wash_list" class="container">
             <table id="Lim_list_table" class="table">
                 <thead>
@@ -85,7 +88,7 @@
                     '<td>' + row.FleetNumber + '</td>' +
                     '<td>' + row.Reg + '</td>' +
                     '<td>' + row.Type + '</td>' +
-                    '<td><a href="#" onclick="showUpdate(this)">Change</a></td>' +
+                    '<td><a href="#" onclick="doChange(this)">Change</a></td>' +
                     '<td><a href="#" onclick="doDelete(this)">Delete</a></td>' +
                     '</tr>';
                 tableBody.append(newRow);
@@ -173,10 +176,82 @@
         }
     });
 }
-            // update/change
-            function showUpdate(linkElement) {
-            var rowElement = linkElement.parentNode.parentNode;
-            console.log(rowElement);
+// update/change-------------------------------------------------------------------------------------
+function doChange(linkElement) {
+        var tableHeaders = document.querySelectorAll("#Lim_list_table th");
+        var rowElement = linkElement.parentNode.parentNode;
+        var wash_id = rowElement.cells[0].firstChild.textContent;
+        var rowDetails = "";
+
+        for (var i = 1; i < tableHeaders.length-2; i++) { //show only manual entry fields (skip ID and leave out buttons from the row)
+            var headerText = tableHeaders[i].textContent;
+            var cellContent = rowElement.cells[i].textContent;
+                
+                if (headerText === "Type") {
+                // Create a dropdown for the Type field
+                rowDetails += "<div class='form-group'><label for='edit-" + i + "'>" + headerText + ":</label><select class='custom-select custom-select-sm' id='edit-" + i + "'>";
+                var typeOptions = ["Euroliner", "Trailer", "Fridge", "Third Party"];
+                for (var j = 0; j < typeOptions.length; j++) {
+                    var selected = (typeOptions[j] === cellContent) ? "selected" : "";
+                    rowDetails += "<option value='" + typeOptions[j] + "' " + selected + ">" + typeOptions[j] + "</option>";
+                }
+                rowDetails += "</select></div>";
+            } else {
+                // Create an input field for other fields
+                rowDetails += "<div class='form-group'><label for='edit-" + i + "'>" + headerText + ":</label><input type='text' class='form-control' id='edit-" + i + "' value='" + cellContent + "'></div>";
+            }
+        }
+
+        Swal.fire({//SweetAlert2 popup message handler module
+            title: "Edit Wash",
+            html: "<div style='text-align: left;'>" + rowDetails + "</div>",
+            showCancelButton: true,
+            confirmButtonText: "Save Changes",
+            preConfirm: () => {
+                var updatedData = {};
+                for (var i = 1; i < tableHeaders.length-2; i++) { //store only manual entry fields (skip ID and leave out buttons from the row)
+                    var headerText = tableHeaders[i].textContent;
+                    var inputValue = document.getElementById('edit-' + i).value;
+                    if (headerText === "Type") {
+                        inputValue = document.getElementById('edit-' + i).value;
+                    }
+                    updatedData[headerText] = inputValue;
+                }
+                updatedData['wash_id'] = wash_id;
+                console.log(updatedData);
+                return updatedData;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to update the wash
+                $.ajax({
+                    url: "/updateWash",
+                    method: "POST",
+                    data: JSON.stringify(result.value),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(response) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Your wash has been updated.",
+                            icon: "success"
+                        }).then((result) => {
+                            fetchLimitedPopulate();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("SQL query executed:", response.sql_query);
+                        console.error("Error updating wash:", error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "Failed to update wash. Please try again later.",
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
+
     }
     </script>
     {% endblock %}
