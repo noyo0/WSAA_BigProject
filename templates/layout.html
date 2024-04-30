@@ -13,7 +13,13 @@
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
 
-       
+        <style>
+            /* Custom CSS for rounded border */
+            .rounded-container {
+              border-radius: 15px; /* Adjust the radius as needed */
+            }
+          </style>
+
     <!-- Conditional title/ title from flask-->
     {% if title %}
         <title>Truckwash - {{ title }}</title>
@@ -23,7 +29,7 @@
 <!--HTML-- -->
 </head>
     <body style="font-family: 'Roboto', sans-serif;">
-<!--top image-- -->    
+<!--top image-- -->
 <div class="container" style="background-image: url('img/bg_web.png'); background-size: contain; background-position: top; height: 42%; position: relative; background-repeat: no-repeat;">
         {% block content %}
         {% endblock %}

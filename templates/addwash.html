@@ -6,14 +6,12 @@
         <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="/washlist" role="tab" aria-controls="v-pills-profile" aria-selected="false">Wash List</a>
         <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="/addwash" role="tab" aria-controls="v-pills-messages" aria-selected="true">Add Wash</a>
       </div>
-      </div>
-</div>
-</div>
-<header class="p-4">
-    <h3 style="color:#12226c;"> Add wash</h3>
-</header>          
+      </div> </div>   
 <!------limited List of washes--------->
-        <div id="wash_list" class="container">
+        <div id="wash_list" class="container rounded-container border border-warning p-4 mt-4">
+            <header class="p-4">
+                <h3 style="color:#12226c;"> Add wash</h3>
+            </header> 
             <table id="Lim_list_table" class="table">
                 <thead>
                     <tr>
@@ -30,14 +28,13 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
-        </div>
         <!-- nav button to full list -->
         <span style="display: flex; justify-content: left;">
-        <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
-        </span>
-        <div id='createandUpdateForm' class="container">
+            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
+            </span>
+        </div>
+        <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 300px;">
         <div class="row justify-content-center">
-        <div class="col-md-6">
         <form>
         <header><br>
         <h3 style="color:#ffffff;background-color:#ff8c2d;">
@@ -61,7 +58,7 @@
     </div>
     </div>
     </div>
-    
+    <br><br>
     <!-- JavaScript-------------------------------------------------->
     <script>
         fetchLimitedPopulate(); // populate with the last few rows from SQL database

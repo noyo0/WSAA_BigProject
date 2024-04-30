@@ -8,13 +8,13 @@
       </div>
       </div>
 </div>
-</div>        
-<header class="p-4">
-            <h3 style="color:#12226c;"> Wash list</h3>
-        </header>  
+</div> 
         <!------List of washes--------->
-        <div id="wash_list" class="container">
-            <table id="full_list_table" class="table">
+        <div id="wash_list" class="container rounded-container border border-secondary p-4 mt-4">
+            <header class="p-4">
+                <h3 style="color:#12226c;"> Wash list</h3>
+            </header>  
+            <table id="full_list_table" class="table table-light table-striped-columns">
                 <thead>
                     <tr>
                         <th>id</th>
@@ -30,11 +30,11 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
+                <!-- nav button to add wash -->
+                <span>
+                    <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/addwash'">Add new wash</button>
+                </span>
         </div>
-        <!-- nav button to add wash -->
-        <span>
-            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/addwash'">Add new wash</button>
-        </span>
         
         <br><br>
     
