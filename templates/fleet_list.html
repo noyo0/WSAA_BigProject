@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+{% block content %}   
+<div>
+    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <a class="nav-link" id="v-pills-home-tab" data-toggle="pill" href="/" role="tab" aria-controls="v-pills-home" aria-selected="false">Home</a>
+        <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="/washlist" role="tab" aria-controls="v-pills-profile" aria-selected="true">Wash List</a>
+        <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="/addwash" role="tab" aria-controls="v-pills-messages" aria-selected="false">Add Wash</a>
+      </div>
+      </div>
+</div>
+</div> 
+<div id="content" class="container rounded-container border border-secondary p-4 mt-4">
+        <!------fleet List--------->
+        <div id="wash_list" class="container rounded-container border border-secondary p-4 mt-4">
+            <header class="p-4">
+                <h3 style="color:#12226c;"> Fleet list</h3>
+            </header>  
+            <table id="full_list_table" class="table table-light table-striped-columns">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>FleetNumber</th>
+                        <th>Reg</th>
+                        <th>Type</th>
+                        <th>Customer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   <!-- populated dynamically by AJAX-->
+                </tbody>
+            </table>
+            <!-- nav button for paginated list -->
+            <div style="text-align: right;">
+                <span>
+            <button class="btn btn-primary" style="background-color:#bdbdbd" onclick="getPrevious()">Previous</button>
+            <button class="btn btn-primary" style="background-color:#bdbdbd" onclick="getNext()">Next</button>
+                </span>  
+                </div>
+            </div>
+        </div>
+    <!-- JavaScript-------------------------------------------------->
+    <script>
+        // variables for pagination
+        var offset = 0; 
+        var limit = 20;
+
+        fetchPopulate(); // populate with the last few rows from SQL database
+        function fetchPopulate(){
+            $.ajax({
+                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
+                method: "GET", 
+                dataType: "json", // expected data format as data in flask is jsonified
+                success: function(data) { // data = DAO.getAll()
+                    populateTable(data); // java function defined below to populate table
+                },
+                error: function(xhr, status, error) { // error handling + write error to console
+                    console.error("Error fetching data:", error);
+                }
+            });
+        }
+            function getNext() {
+            offset += limit;
+            fetchPopulate();
+        }
+
+        function getPrevious() {
+            offset -= limit;
+            if (offset < 0) offset = 0;
+            fetchPopulate();
+        }
+        function populateTable(data) { // populate table function called above
+            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
+            tableBody.empty(); // Clear existing rows if there was anything in the table already
+            data.forEach(function(row) { // populate from json and assign each to columns
+                var newRow = '<tr>' +
+                    '<td>' + row.id + '</td>' +
+                    '<td>' + row.FleetNumber + '</td>' +
+                    '<td>' + row.Reg + '</td>' +
+                    '<td>' + row.Type + '</td>' +
+                    '<td>' + row.Customer + '</td>' +
+                    '</tr>';
+                tableBody.append(newRow);
+            })
+        }
+    </script>
+    {% endblock %}

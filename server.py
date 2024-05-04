@@ -30,13 +30,25 @@ def img(filename):
 def washlist():
         return render_template('wash_list.html', title='Wash list')
 
+@app.route('/fleetlist') # this is the wash list page
+def fleetlist():
+        return render_template('fleet_list.html', title='Fleet list')
+
 @app.route('/addwash') # this is the wash list page
 def addwash():
         return render_template('addwash.html', title='Add Wash')
 
 
 # DATA ACCESS -----------------------------------------------------------------------------------------------------------------------
-        # Read all ------------------
+        # Read all fleet------------------
+@app.route('/getall_eqSQL', methods=['GET']) # this is getting a paginated fleet list
+def getall_eqSQL():
+    offset = request.args.get('offset', default=0, type=int)
+    limit = request.args.get('limit', default=20, type=int)
+    data = DAO.getAlleq(offset, limit)
+    return jsonify(data)
+
+        # Read all wash------------------
 @app.route('/getallSQL', methods=['GET']) # this is getting mysql data for the washlikst at @/wash
 def getallSQL():
     data = DAO.getAll()

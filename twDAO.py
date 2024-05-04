@@ -29,6 +29,26 @@ class TruckwashDAO:
     def closeAll(self):
         self.connection.close()
         self.cursor.close()
+
+    def getAlleq(self, offset, limit): #paginated fleetlist
+        cursor = self.getcursor()
+        #get the sql row max
+        count_sql = "SELECT COUNT(*) FROM eq_table"
+        cursor.execute(count_sql)
+        total_count = cursor.fetchone()[0]
+        # Adjust limit if it exceeds total count
+        limit = min(limit, total_count)
+        # fetch paginated results
+        sql = "SELECT * FROM eq_table LIMIT %s, %s"
+        cursor.execute(sql, (offset, limit))
+        results = cursor.fetchall()
+
+        returnArray = []
+        for result in results:
+            returnArray.append(self.convertToDictionaryEQ(result))
+
+        self.closeAll()
+        return returnArray
          
     def getAll(self):
         cursor = self.getcursor()
@@ -88,6 +108,13 @@ class TruckwashDAO:
 
     def convertToDictionary(self, resultLine):
         attkeys=['id', 'Date', 'FleetNumber', 'Reg', 'Type']
+        truckwash = {}
+        for i, attrib in enumerate(resultLine):
+            truckwash[attkeys[i]] = attrib
+        return truckwash
+    
+    def convertToDictionaryEQ(self, resultLine):
+        attkeys=['id', 'FleetNumber', 'Reg', 'Type', 'Customer']
         truckwash = {}
         for i, attrib in enumerate(resultLine):
             truckwash[attkeys[i]] = attrib
