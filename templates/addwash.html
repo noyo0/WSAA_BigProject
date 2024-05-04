@@ -2,12 +2,16 @@
 {% block content %}
 <div>
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <a class="nav-link" id="v-pills-home-tab" data-toggle="pill" href="/" role="tab" aria-controls="v-pills-home" aria-selected="false">Home</a>
-        <a class="nav-link" id="v-pills-profile-tab" data-toggle="pill" href="/washlist" role="tab" aria-controls="v-pills-profile" aria-selected="false">Wash List</a>
-        <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="/addwash" role="tab" aria-controls="v-pills-messages" aria-selected="true">Add Wash</a>
+        <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
+            <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
+            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+            <a class="nav-link active" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
+            <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
+        </div>
       </div>
-      </div> </div>   
+      </div></div>
 <!------limited List of washes--------->
+<div class="container">
         <div id="wash_list" class="container rounded-container border border-warning p-4 mt-4">
             <header class="p-4">
                 <h3 style="color:#12226c;"> Recently added</h3>
@@ -32,7 +36,7 @@
         <span style="display: flex; justify-content: left;">
             <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
             </span>
-        </div>
+        </div></div>
         <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 300px;">
         <div class="row justify-content-center">
         <form>

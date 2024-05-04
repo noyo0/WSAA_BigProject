@@ -1,4 +1,4 @@
-import mysql.connector
+import mysql.connector as connector
 from config import TWlocal as cfg
 import datetime
 
@@ -15,9 +15,9 @@ class TruckwashDAO:
         self.user=       cfg['user']
         self.password=   cfg['password']
         self.database=   cfg['database']
-
+        
     def getcursor(self): 
-        self.connection = mysql.connector.connect(
+        self.connection = connector.connect(
             host=       self.host,
             user=       self.user,
             password=   self.password,

@@ -17,6 +17,22 @@
             .rounded-container {
               border-radius: 15px; /* set radius */
             }
+                .nav-link {
+                    color: #12226c; /* text color */
+                    background-color: white; /* background color to white */
+                }
+                .nav-link.active{
+                    color: #12226c; /* active color */
+                    background-color: white; /* background color to white */
+                }
+                .nav-link:hover {
+                    color: white; /* Set text color to white for active and hover states */
+                    background-color: #12226c; /* Set background color to black for active and hover states */
+                }
+                /* Custom CSS for rounded border */
+                .rounded-container {
+                    border-radius: 15px; /* Adjust the radius as needed */
+                }        
           </style>
 
     <!-- Conditional title/ title from flask-->
@@ -33,6 +49,26 @@
         {% block content %}
         {% endblock %}
     </div>
+<!-- bottom menu -->
+<div class="container-fluid bg-light">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
+        </div>
+        <div class="col-auto">
+            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+        </div>
+        <div class="col-auto">
+            <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
+        </div>
+        <div class="col-auto">
+            <a class="nav-link active" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
+        </div>
+    </div>
+</div>
+
+    
+</div>
     </body>
 
 <!-- JavaScript-->
