@@ -32,8 +32,12 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
-
-        <!--Add TP new wash form -->
+        <!-- nav button to full list -->
+        <span style="display: flex; justify-content: left;">
+            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
+            </span>
+        </div></div>
+        <!--Add new wash form -->
         <div class="row">
         <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 300px;">
         <div class="row justify-content-left">
@@ -60,8 +64,8 @@
     </div>
     </div>
     <!--Add from search-->
-    <div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 600px; max-height: 400px; overflow-y: auto;">
-        <div class="row justify-content-center">
+    <div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 300px;">
+        <div class="row justify-content-right">
         <form>
         <header>
         <h3 style="color:#12226c">
@@ -70,49 +74,24 @@
         </header>
         <div class="form-group">
             <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br> <!-- date picker calendar-->
-            <div id="fleet_list" class="container rounded-container border border-secondary p-4 mt-4">
-                <table id="full_list_table" class="table table-light table-striped-columns">
-                    <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>FleetNumber</th>
-                            <th>Reg</th>
-                            <th>Type</th>
-                            <th>Customer</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       <!-- populated dynamically by AJAX hopefully-->
-                    </tbody>
-                </table>
-                <!--Add wash button-->
+            Fleet Number or reg <br><select class="custom-select custom-select-sm" name="type">
+                <option value="Euroliner">Euroliner</option>
+                <option value="Trailer">Trailer</option>
+                <option value="Fridge">Fridge</option>
+                <option value="Truck">Truck</option>
+                <option value="Third Party">Third Party</option>
+            </select><br><br>
             <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button></span>
         </div>
         </form>
     </div>
     </div>
-</div></div>        
 </div>
     </div>
     </div>
     <br><br>
     <!-- JavaScript-------------------------------------------------->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Get today's date
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-    var yyyy = today.getFullYear();
-
-    // Format today's date as yyyy-mm-dd
-    var formattedDate = yyyy + '-' + mm + '-' + dd;
-
-    // Set the default value of the date picker input
-    document.getElementById('datePicker').value = formattedDate;
-});
-
-    $(document).ready(function() {
         fetchLimitedPopulate(); // populate with the last few rows from SQL database
         function fetchLimitedPopulate(){
             $.ajax({
@@ -168,42 +147,6 @@
                     console.error("Error saving wash data:", error);
                 }}
             )}
-            })
-//<!--fleetlist JavaScript-------------------------------------------------->
-        $(document).ready(function() {
-        // extend variables to cancel pagination
-        var offset = 0; 
-        var limit =10000;
-
-        fetchPopulateFleet(); // populate with the last few rows from SQL database
-        function fetchPopulateFleet(){
-            $.ajax({
-                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
-                method: "GET", 
-                dataType: "json", // expected data format as data in flask is jsonified
-                success: function(data) { // data = DAO.getAll()
-                    populateTableFleet(data); // java function defined below to populate table
-                },
-                error: function(xhr, status, error) { // error handling + write error to console
-                    console.error("Error fetching data:", error);
-                }
-            });
-        }
-
-        function populateTableFleet(data) { // populate table function called above
-            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
-            tableBody.empty(); // Clear existing rows if there was anything in the table already
-            data.forEach(function(row) { // populate from json and assign each to columns
-                var newRow = '<tr>' +
-                    '<td>' + row.id + '</td>' +
-                    '<td>' + row.FleetNumber + '</td>' +
-                    '<td>' + row.Reg + '</td>' +
-                    '<td>' + row.Type + '</td>' +
-                    '<td>' + row.Customer + '</td>' +
-                    '</tr>';
-                tableBody.append(newRow);
-            })
-        }})
 
 //DELETE------------------------------------------------------------------------------
     function doDelete(linkElement) {

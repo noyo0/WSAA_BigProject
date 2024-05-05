@@ -1,123 +1,113 @@
 import mysql.connector as connector
-from config import TWlocal as cfg
 import datetime
 
 class TruckwashDAO:
-    connection=""
-    cursor =''
-    host=       ''
-    user=       ''
-    password=   ''
-    database=   ''
-    
-    def __init__(self):
-        self.host=       cfg['host']
-        self.user=       cfg['user']
-        self.password=   cfg['password']
-        self.database=   cfg['database']
-        
-    def getcursor(self): 
-        self.connection = connector.connect(
-            host=       self.host,
-            user=       self.user,
-            password=   self.password,
-            database=   self.database,
-        )
-        self.cursor = self.connection.cursor()
-        return self.cursor
+    def __init__(self, cfg):
+        self.cfg = cfg
 
-    def closeAll(self):
-        self.connection.close()
-        self.cursor.close()
+    def connect(self):
+        return connector.connect(**self.cfg)
 
-    def getAlleq(self, offset, limit): #paginated fleetlist
-        cursor = self.getcursor()
-        #get the sql row max
-        count_sql = "SELECT COUNT(*) FROM eq_table"
-        cursor.execute(count_sql)
-        total_count = cursor.fetchone()[0]
-        # Adjust limit if it exceeds total count
-        limit = min(limit, total_count)
-        # fetch paginated results
-        sql = "SELECT * FROM eq_table LIMIT %s, %s"
-        cursor.execute(sql, (offset, limit))
-        results = cursor.fetchall()
+    def getAlleq(self, offset, limit):
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            count_sql = "SELECT COUNT(*) FROM eq_table"
+            cursor.execute(count_sql)
+            total_count = cursor.fetchone()[0]
+            limit = min(limit, total_count)
+            sql = "SELECT * FROM eq_table LIMIT %s, %s"
+            cursor.execute(sql, (offset, limit))
+            results = cursor.fetchall()
+            returnArray = [self.convertToDictionaryEQ(result) for result in results]
+            return returnArray
+        finally:
+            cursor.close()
+            connection.close()
 
-        returnArray = []
-        for result in results:
-            returnArray.append(self.convertToDictionaryEQ(result))
-
-        self.closeAll()
-        return returnArray
-         
     def getAll(self):
-        cursor = self.getcursor()
-        sql="SELECT * FROM truckwash"
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        returnArray = []
-        for result in results:
-            returnArray.append(self.convertToDictionary(result))
-        
-        self.closeAll()
-        return returnArray
-    
-    def getAll_limit(self,lim=5):
-        cursor = self.getcursor()
-        sql="""SELECT * FROM (
-                SELECT * FROM truckwash ORDER BY id DESC LIMIT %s
-                ) AS bottom
-                ORDER BY id ASC"""
-        cursor.execute(sql,(lim,))
-        results = cursor.fetchall()
-        returnArray = []
-        for result in results:
-            returnArray.append(self.convertToDictionary(result))
-        
-        self.closeAll()
-        return returnArray
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = "SELECT * FROM truckwash ORDER BY date"
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            returnArray = [self.convertToDictionary(result) for result in results]
+            return returnArray
+        finally:
+            cursor.close()
+            connection.close()
+
+    def getAll_limit(self, lim=5):
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = """SELECT * FROM (
+                    SELECT * FROM truckwash ORDER BY id DESC LIMIT %s
+                    ) AS bottom
+                    ORDER BY id ASC"""
+            cursor.execute(sql, (lim,))
+            results = cursor.fetchall()
+            returnArray = [self.convertToDictionary(result) for result in results]
+            return returnArray
+        finally:
+            cursor.close()
+            connection.close()
 
     def create(self, wash_data):
-        cursor = self.getcursor()
-        sql="INSERT INTO truckwash (Date, FleetNumber, Reg, Type) VALUES (%s, %s, %s, %s)"
-        values = (wash_data['Date'], wash_data['FleetNumber'], wash_data['Reg'], wash_data['Type'])
-        cursor.execute(sql, values)
-        self.connection.commit()
-        self.closeAll()
-        return wash_data
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = "INSERT INTO truckwash (Date, FleetNumber, Reg, Type) VALUES (%s, %s, %s, %s)"
+            values = (wash_data['Date'], wash_data['FleetNumber'], wash_data['Reg'], wash_data['Type'])
+            cursor.execute(sql, values)
+            connection.commit()
+            return wash_data
+        finally:
+            cursor.close()
+            connection.close()
 
     def deleteWash(self, wash_id):
-        cursor = self.getcursor()
-        sql = "DELETE FROM truckwash WHERE id = %s"
-        cursor.execute(sql, (wash_id,))
-        self.connection.commit()
-        self.closeAll()
-        return wash_id
-    
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = "DELETE FROM truckwash WHERE id = %s"
+            cursor.execute(sql, (wash_id,))
+            connection.commit()
+            return wash_id
+        finally:
+            cursor.close()
+            connection.close()
+
     def changeWash(self, updatedData):
         # Convert date to MySQL-friendly format
         updatedData['Date'] = datetime.datetime.strptime(updatedData['Date'], '%d/%b/%Y').strftime('%Y-%m-%d')
         
-        cursor = self.getcursor()
-        sql = "UPDATE truckwash SET Date = %s, FleetNumber = %s, Reg = %s, Type = %s WHERE id = %s"
-        values = (updatedData['Date'], updatedData['Fleet Number'], updatedData['Reg'], updatedData['Type'], updatedData['wash_id'])
-        cursor.execute(sql, values)
-        self.connection.commit()
-        self.closeAll()
-        return updatedData
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = "UPDATE truckwash SET Date = %s, FleetNumber = %s, Reg = %s, Type = %s WHERE id = %s"
+            values = (updatedData['Date'], updatedData['Fleet Number'], updatedData['Reg'], updatedData['Type'], updatedData['wash_id'])
+            cursor.execute(sql, values)
+            connection.commit()
+            return updatedData
+        finally:
+            cursor.close()
+            connection.close()
 
     def convertToDictionary(self, resultLine):
-        attkeys=['id', 'Date', 'FleetNumber', 'Reg', 'Type']
-        truckwash = {}
-        for i, attrib in enumerate(resultLine):
-            truckwash[attkeys[i]] = attrib
-        return truckwash
-    
-    def convertToDictionaryEQ(self, resultLine):
-        attkeys=['id', 'FleetNumber', 'Reg', 'Type', 'Customer']
-        truckwash = {}
-        for i, attrib in enumerate(resultLine):
-            truckwash[attkeys[i]] = attrib
-        return truckwash
+        attkeys = ['id', 'Date', 'FleetNumber', 'Reg', 'Type']
+        return {key: value for key, value in zip(attkeys, resultLine)}
 
-truckwashDAO = TruckwashDAO()
+    def convertToDictionaryEQ(self, resultLine):
+        attkeys = ['id', 'FleetNumber', 'Reg', 'Type', 'Customer']
+        return {key: value for key, value in zip(attkeys, resultLine)}
+
+# Import config file
+from config import TWlocal
+
+# Create TruckwashDAO instance with configuration from config.py
+truckwashDAO = TruckwashDAO(TWlocal)
+
+# issue with "weakly-referenced object no longer exists" resolved by closing each cursor and connection
+
