@@ -12,7 +12,7 @@
       </div></div>
 <!------limited List of washes--------->
 <div class="container">
-        <div id="wash_list" class="container rounded-container border border-primary p-3 mt-1">
+        <div id="wash_list" class="container rounded-container border border-primary p-4 mt-4">
             <header class="p-4">
                 <h3 style="color:#12226c;"> Recently added</h3>
             </header> 
@@ -33,9 +33,12 @@
                 </tbody>
             </table>
         <!-- nav button to full list -->
+        <span style="display: flex; justify-content: left;">
+            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
+            </span>
         </div></div>
-        <!-- Add third party- --------- def non visible --------->
-        <div id='createandUpdateForm' class="container rounded-container border border-warning p-3 mt-1" style="display: none;>
+        <!-- Add third party-->
+        <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 100%;">
             <div class="row justify-content-left">
                 <form>
                     <header>
@@ -71,20 +74,15 @@
             </div>
         </div>
        <!--Add from search-->
-<div id='AddFromFleet' class="container rounded-container border border-success p-2 mt-2" style="max-height: 400px;">
+<div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 100%; max-height: 400px;">
     <div class="row justify-content-center">
         <form>
             <header>
                 <h5 style="color:#12226c">Add from fleet</h5> 
             </header>
-            <!--Add visibility buttons-->
             <div class="form-group">
-                <span style="display: flex; justify-content: left;">
-                    <input type="text" id="myInput" onkeyup="filterTable()" placeholder="Search for Fleet Number..." title="Type in a Fleet Number">
-                    <div style="margin-right: 10px;"></div>
-                    <button id="showForm" type="button" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('createandUpdateForm')">Not in Fleet</button>
-                </span>
-                    <div id="fleet_list" class="container rounded-container border border-secondary p-1 mt-1" style="max-width: 100%; max-height: 200px; overflow-y: auto">
+                <input type="text" id="myInput" onkeyup="filterTable()" placeholder="Search for Fleet Number..." title="Type in a Fleet Number">
+                <div id="fleet_list" class="container rounded-container border border-secondary p-4 mt-4" style="max-width: 100%; max-height: 200px; overflow-y: auto">
                     <table id="full_list_table" class="table table-light table-striped-columns">
                         <thead>
                             <tr>
@@ -105,6 +103,7 @@
         </form>
     </div>
 </div>
+                    <!--Add wash button-->
             </div>
             </form>
         </div>
@@ -113,15 +112,6 @@
     </div>
     <!-- JavaScript-------------------------------------------------->
     <script>
-    function toggleVisibility(elementId) { // show/hide panels
-            var element = document.getElementById(elementId);
-            if (element.style.display === "none") {
-                element.style.display = "block";
-            } else {
-                element.style.display = "none";
-            }
-        }
-
         //default date for date picker
     document.addEventListener('DOMContentLoaded', function() {
     var today = new Date();
@@ -250,10 +240,9 @@
 
 //------ add wash from fleet list-------------------------------------------------------------------------------------------------------------------------
 
-//-------Do Add (mod doChange) if it works v5.0
+//-------Do Add (mod doChange) if it works
 
 function doAdd(linkElement) {
-    var tableHeaders = document.querySelectorAll("#full_list_table th");
     var rowElement = linkElement.parentNode.parentNode;
     var fleetNumber = rowElement.cells[1].textContent.trim(); // Index 1 corresponds to FleetNumber column
     var reg = rowElement.cells[2].textContent.trim(); // Index 2 corresponds to Reg column
@@ -262,12 +251,6 @@ function doAdd(linkElement) {
     // date picker input with today's date
     var today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
     var rowDetails = "<div class='form-group'><label for='edit-date'>Date:</label><input type='date' class='form-control' id='edit-date' value='" + today + "'></div>";
-
-    // Display fleet number, registration, and type as additional text
-    rowDetails += "<p>Fleet Number: " + fleetNumber + "</p>";
-    rowDetails += "<p>Registration: " + reg + "</p>";
-    rowDetails += "<p>Type: " + type + "</p>";
-
 
     Swal.fire({//SweetAlert2 popup message handler module
         title: "Add Wash",
@@ -282,6 +265,7 @@ function doAdd(linkElement) {
                 'type': type
             };
             console.log(sendData);
+
             return sendData;
         }
     }).then((result) => {

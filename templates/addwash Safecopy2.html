@@ -12,7 +12,7 @@
       </div></div>
 <!------limited List of washes--------->
 <div class="container">
-        <div id="wash_list" class="container rounded-container border border-primary p-3 mt-1">
+        <div id="wash_list" class="container rounded-container border border-primary p-4 mt-4">
             <header class="p-4">
                 <h3 style="color:#12226c;"> Recently added</h3>
             </header> 
@@ -32,108 +32,87 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
-        <!-- nav button to full list -->
-        </div></div>
-        <!-- Add third party- --------- def non visible --------->
-        <div id='createandUpdateForm' class="container rounded-container border border-warning p-3 mt-1" style="display: none;>
-            <div class="row justify-content-left">
-                <form>
-                    <header>
-                        <h5 style="color:#ff9a2f">
-                            Add Third Party
-                        </h5> 
-                    </header>
-                    <div class="form-group row">
-                        <div class="col">
-                            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control" placeholder="Fleet Number" name="fleet_number" required>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control" placeholder="Reg" name="reg">
-                        </div>
-                        <div class="col">
-                            <select class="form-control custom-select custom-select-sm" name="type" required>
-                                <option value="Trailer">Type</option>
-                                <option value="Euroliner">Euroliner</option>
-                                <option value="Trailer">Trailer</option>
-                                <option value="Fridge">Fridge</option>
-                                <option value="Truck">Truck</option>
-                                <option value="Third Party">Third Party</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-       <!--Add from search-->
-<div id='AddFromFleet' class="container rounded-container border border-success p-2 mt-2" style="max-height: 400px;">
-    <div class="row justify-content-center">
+
+        <!--Add TP new wash form -->
+        <div class="row">
+        <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 300px;">
+        <div class="row justify-content-left">
         <form>
-            <header>
-                <h5 style="color:#12226c">Add from fleet</h5> 
-            </header>
-            <!--Add visibility buttons-->
-            <div class="form-group">
-                <span style="display: flex; justify-content: left;">
-                    <input type="text" id="myInput" onkeyup="filterTable()" placeholder="Search for Fleet Number..." title="Type in a Fleet Number">
-                    <div style="margin-right: 10px;"></div>
-                    <button id="showForm" type="button" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('createandUpdateForm')">Not in Fleet</button>
-                </span>
-                    <div id="fleet_list" class="container rounded-container border border-secondary p-1 mt-1" style="max-width: 100%; max-height: 200px; overflow-y: auto">
-                    <table id="full_list_table" class="table table-light table-striped-columns">
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>FleetNumber</th>
-                                <th>Reg</th>
-                                <th>Type</th>
-                                <th>Customer</th>
-                                <th>Add Wash</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- populated dynamically by AJAX hopefully-->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <header>
+        <h3 style="color:#ff9a2f">
+        Add Third Party
+        </h3> 
+        </header>
+        <div class="form-group">
+            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required> <!-- date picker calendar-->
+            <input type="text" class="form-control" placeholder="Fleet Number" type="text" name="fleet_number" required>
+            <input type="text" class="form-control" placeholder="Reg" type="number" name="reg"><br/>
+            Type <select class="custom-select custom-select-sm" name="type">
+                <option value="Euroliner">Euroliner</option>
+                <option value="Trailer">Trailer</option>
+                <option value="Fridge">Fridge</option>
+                <option value="Truck">Truck</option>
+                <option value="Third Party">Third Party</option>
+            </select><br><br>
+            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button></span>
+        </div>
         </form>
     </div>
-</div>
-            </div>
-            </form>
-        </div>
-        </div>
-    </div></div>        
     </div>
+    <!--Add from search-->
+    <div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 600px; max-height: 400px; overflow-y: auto;">
+        <div class="row justify-content-center">
+        <form>
+        <header>
+        <h3 style="color:#12226c">
+        Add from fleet
+        </h3> 
+        </header>
+        <div class="form-group">
+            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br> <!-- date picker calendar-->
+            <div id="fleet_list" class="container rounded-container border border-secondary p-4 mt-4">
+                <table id="full_list_table" class="table table-light table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>FleetNumber</th>
+                            <th>Reg</th>
+                            <th>Type</th>
+                            <th>Customer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       <!-- populated dynamically by AJAX hopefully-->
+                    </tbody>
+                </table>
+                <!--Add wash button-->
+            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button></span>
+        </div>
+        </form>
+    </div>
+    </div>
+</div></div>        
+</div>
+    </div>
+    </div>
+    <br><br>
     <!-- JavaScript-------------------------------------------------->
     <script>
-    function toggleVisibility(elementId) { // show/hide panels
-            var element = document.getElementById(elementId);
-            if (element.style.display === "none") {
-                element.style.display = "block";
-            } else {
-                element.style.display = "none";
-            }
-        }
-
-        //default date for date picker
     document.addEventListener('DOMContentLoaded', function() {
+    // Get today's date
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
     var yyyy = today.getFullYear();
+
+    // Format today's date as yyyy-mm-dd
     var formattedDate = yyyy + '-' + mm + '-' + dd;
+
+    // Set the default value of the date picker input
     document.getElementById('datePicker').value = formattedDate;
-    document.getElementById('datePicker2').value = formattedDate;
 });
 
-// recent washes ---------------------------------------------------
+    $(document).ready(function() {
         fetchLimitedPopulate(); // populate with the last few rows from SQL database
         function fetchLimitedPopulate(){
             $.ajax({
@@ -164,7 +143,6 @@
                 tableBody.append(newRow);
             })
         }
-//------------Add TP wash-------------------------------------------
         function storeFormValues() {
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
@@ -190,14 +168,14 @@
                     console.error("Error saving wash data:", error);
                 }}
             )}
-
-//----------add from Fleet --------------------------
-    //<!--fleetlist JavaScript-------------------------------------------------->
-        
+            })
+//<!--fleetlist JavaScript-------------------------------------------------->
+        $(document).ready(function() {
+        // extend variables to cancel pagination
         var offset = 0; 
-        var limit =10000; // extend limit value to cancel pagination  (I know I'm a savage)
+        var limit =10000;
 
-        fetchPopulateFleet(); 
+        fetchPopulateFleet(); // populate with the last few rows from SQL database
         function fetchPopulateFleet(){
             $.ajax({
                 url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
@@ -213,7 +191,7 @@
         }
 
         function populateTableFleet(data) { // populate table function called above
-            var tableBody = $('#full_list_table tbody'); // this is the HTML table element where it populates
+            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
             tableBody.empty(); // Clear existing rows if there was anything in the table already
             data.forEach(function(row) { // populate from json and assign each to columns
                 var newRow = '<tr>' +
@@ -222,103 +200,11 @@
                     '<td>' + row.Reg + '</td>' +
                     '<td>' + row.Type + '</td>' +
                     '<td>' + row.Customer + '</td>' +
-                    '<td><a href="#" onclick="doAdd(this)">Add Wash</a></td>'+
                     '</tr>';
                 tableBody.append(newRow);
             })
-        }
+        }})
 
-// table search
-        function filterTable() {
-                var input, filter, table, tr, td, i, txtValue;
-                input = document.getElementById("myInput");
-                filter = input.value.toUpperCase();
-                table = document.getElementById("full_list_table");
-                tr = table.getElementsByTagName("tr");
-                for (i = 0; i < tr.length; i++) {
-                    td = tr[i].getElementsByTagName("td")[1]; // Index 1 corresponds to the FleetNumber column
-                    if (td) {
-                        txtValue = td.textContent || td.innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                        } else {
-                            tr[i].style.display = "none";
-                        }
-                    }       
-                }
-            }
-
-//------ add wash from fleet list-------------------------------------------------------------------------------------------------------------------------
-
-//-------Do Add (mod doChange) if it works v5.0
-
-function doAdd(linkElement) {
-    var tableHeaders = document.querySelectorAll("#full_list_table th");
-    var rowElement = linkElement.parentNode.parentNode;
-    var fleetNumber = rowElement.cells[1].textContent.trim(); // Index 1 corresponds to FleetNumber column
-    var reg = rowElement.cells[2].textContent.trim(); // Index 2 corresponds to Reg column
-    var type = rowElement.cells[3].textContent.trim(); // Index 3 corresponds to Type column
-
-    // date picker input with today's date
-    var today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    var rowDetails = "<div class='form-group'><label for='edit-date'>Date:</label><input type='date' class='form-control' id='edit-date' value='" + today + "'></div>";
-
-    // Display fleet number, registration, and type as additional text
-    rowDetails += "<p>Fleet Number: " + fleetNumber + "</p>";
-    rowDetails += "<p>Registration: " + reg + "</p>";
-    rowDetails += "<p>Type: " + type + "</p>";
-
-
-    Swal.fire({//SweetAlert2 popup message handler module
-        title: "Add Wash",
-        html: "<div style='text-align: left;'>" + rowDetails + "</div>",
-        showCancelButton: true,
-        confirmButtonText: "Add",
-        preConfirm: () => {
-            var sendData = {
-                'date': document.getElementById('edit-date').value,
-                'fleetNumber': fleetNumber,
-                'reg': reg,
-                'type': type
-            };
-            console.log(sendData);
-            return sendData;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Send AJAX request to add the wash
-            $.ajax({
-                url: "/addwashSQL", // URL to add the wash data
-                method: "POST",
-                data: JSON.stringify(result.value),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(response) {
-                    Swal.fire({
-                        title: "Added!",
-                        text: "The wash has been added.",
-                        icon: "success"
-                    }).then((result) => {
-                        fetchLimitedPopulate();// Refresh the page or update the fleet list table as needed
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error adding wash:", error);
-                    Swal.fire({
-                        title: "Error",
-                        text: "Failed to add wash. Please try again later.",
-                        icon: "error"
-                    });
-                }
-            });
-        }
-    });
-}
-
-
-
-
-//---------in row functions for recent washes-----------------------------------
 //DELETE------------------------------------------------------------------------------
     function doDelete(linkElement) {
     var tableHeaders = document.querySelectorAll("#Lim_list_table th");

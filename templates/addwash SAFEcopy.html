@@ -37,61 +37,89 @@
             <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/washlist'">Full list</button>
             </span>
         </div></div>
-        <!--Add new wash form -->
-        <div class="row">
-        <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 300px;">
-        <div class="row justify-content-left">
-        <form>
-        <header>
-        <h3 style="color:#ff9a2f">
-        Add Third Party
-        </h3> 
-        </header>
-        <div class="form-group">
-            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required> <!-- date picker calendar-->
-            <input type="text" class="form-control" placeholder="Fleet Number" type="text" name="fleet_number" required>
-            <input type="text" class="form-control" placeholder="Reg" type="number" name="reg"><br/>
-            Type <select class="custom-select custom-select-sm" name="type">
-                <option value="Euroliner">Euroliner</option>
-                <option value="Trailer">Trailer</option>
-                <option value="Fridge">Fridge</option>
-                <option value="Truck">Truck</option>
-                <option value="Third Party">Third Party</option>
-            </select><br><br>
-            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button></span>
+        <!-- Add third party-->
+        <div id='createandUpdateForm' class="container rounded-container border border-warning p-4 mt-4" style="max-width: 100%;">
+            <div class="row justify-content-left">
+                <form>
+                    <header>
+                        <h5 style="color:#ff9a2f">
+                            Add Third Party
+                        </h5> 
+                    </header>
+                    <div class="form-group row">
+                        <div class="col">
+                            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Fleet Number" name="fleet_number" required>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Reg" name="reg">
+                        </div>
+                        <div class="col">
+                            <select class="form-control custom-select custom-select-sm" name="type" required>
+                                <option value="Trailer">Type</option>
+                                <option value="Euroliner">Euroliner</option>
+                                <option value="Trailer">Trailer</option>
+                                <option value="Fridge">Fridge</option>
+                                <option value="Truck">Truck</option>
+                                <option value="Third Party">Third Party</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-        </form>
-    </div>
-    </div>
-    <!--Add from search-->
-    <div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 300px;">
-        <div class="row justify-content-right">
-        <form>
-        <header>
-        <h3 style="color:#12226c">
-        Add from fleet
-        </h3> 
-        </header>
-        <div class="form-group">
-            <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker" required><br> <!-- date picker calendar-->
-            Fleet Number or reg <br><select class="custom-select custom-select-sm" name="type">
-                <option value="Euroliner">Euroliner</option>
-                <option value="Trailer">Trailer</option>
-                <option value="Fridge">Fridge</option>
-                <option value="Truck">Truck</option>
-                <option value="Third Party">Third Party</option>
-            </select><br><br>
-            <span><button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="addWashToDatabase()">Add new wash</button></span>
+        <!--Add from search-->
+        <div id='AddFromFleet' class="container rounded-container border border-success p-4 mt-4" style="max-width: 100%; max-height: 400px; overflow-y: auto;">
+            <div class="row justify-content-center">
+            <form>
+            <header>
+            <h3 style="color:#12226c">
+            Add from fleet
+            </h3> 
+            </header>
+            <div class="form-group">
+                <input type="date" class="form-control" placeholder="Date" name="date" id="datePicker2" required><br> <!-- date picker calendar-->
+                <div id="fleet_list" class="container rounded-container border border-secondary p-4 mt-4">
+                    <table id="full_list_table" class="table table-light table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>FleetNumber</th>
+                                <th>Reg</th>
+                                <th>Type</th>
+                                <th>Customer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           <!-- populated dynamically by AJAX hopefully-->
+                        </tbody>
+                    </table>
+                    <!--Add wash button-->
+            </div>
+            </form>
         </div>
-        </form>
+        </div>
+    </div></div>        
     </div>
-    </div>
-</div>
-    </div>
-    </div>
-    <br><br>
     <!-- JavaScript-------------------------------------------------->
     <script>
+        //default date for date picker
+    document.addEventListener('DOMContentLoaded', function() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    var yyyy = today.getFullYear();
+    var formattedDate = yyyy + '-' + mm + '-' + dd;
+    document.getElementById('datePicker').value = formattedDate;
+    document.getElementById('datePicker2').value = formattedDate;
+});
+
+// recent washes ---------------------------------------------------
         fetchLimitedPopulate(); // populate with the last few rows from SQL database
         function fetchLimitedPopulate(){
             $.ajax({
@@ -122,6 +150,7 @@
                 tableBody.append(newRow);
             })
         }
+//------------Add TP wash-------------------------------------------
         function storeFormValues() {
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
@@ -148,6 +177,43 @@
                 }}
             )}
 
+//----------add from Fleet --------------------------
+//<!--fleetlist JavaScript-------------------------------------------------->
+        // extend variables to cancel pagination
+        var offset = 0; 
+        var limit =10000;
+
+        fetchPopulateFleet(); 
+        function fetchPopulateFleet(){
+            $.ajax({
+                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
+                method: "GET", 
+                dataType: "json", // expected data format as data in flask is jsonified
+                success: function(data) { // data = DAO.getAll()
+                    populateTableFleet(data); // java function defined below to populate table
+                },
+                error: function(xhr, status, error) { // error handling + write error to console
+                    console.error("Error fetching data:", error);
+                }
+            });
+        }
+
+        function populateTableFleet(data) { // populate table function called above
+            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
+            tableBody.empty(); // Clear existing rows if there was anything in the table already
+            data.forEach(function(row) { // populate from json and assign each to columns
+                var newRow = '<tr>' +
+                    '<td>' + row.id + '</td>' +
+                    '<td>' + row.FleetNumber + '</td>' +
+                    '<td>' + row.Reg + '</td>' +
+                    '<td>' + row.Type + '</td>' +
+                    '<td>' + row.Customer + '</td>' +
+                    '</tr>';
+                tableBody.append(newRow);
+            })
+        }
+
+//---------in row functions for recent washes-----------------------------------
 //DELETE------------------------------------------------------------------------------
     function doDelete(linkElement) {
     var tableHeaders = document.querySelectorAll("#Lim_list_table th");
