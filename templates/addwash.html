@@ -84,7 +84,7 @@
                     <div style="margin-right: 10px;"></div>
                     <button id="showForm" type="button" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('createandUpdateForm')">Not in Fleet</button>
                 </span>
-                    <div id="fleet_list" class="container rounded-container border border-secondary p-1 mt-1" style="max-width: 100%; max-height: 200px; overflow-y: auto">
+                    <div id="fleet_list" class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 300px">
                     <table id="full_list_table" class="table table-light table-striped-columns">
                         <thead>
                             <tr>
@@ -253,6 +253,9 @@
 //-------Do Add (mod doChange) if it works v5.0
 
 function doAdd(linkElement) {
+
+    document.getElementById('myInput').value = '';// reset searchbox
+
     var tableHeaders = document.querySelectorAll("#full_list_table th");
     var rowElement = linkElement.parentNode.parentNode;
     var fleetNumber = rowElement.cells[1].textContent.trim(); // Index 1 corresponds to FleetNumber column

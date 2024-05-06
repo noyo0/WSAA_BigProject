@@ -32,7 +32,39 @@
                 /* Custom CSS for rounded border */
                 .rounded-container {
                     border-radius: 15px; /* Adjust the radius as needed */
-                }        
+                }
+                /* Freeze header on table */
+                .intro {
+                    height: 100%;
+                }
+
+                table td,
+                table th {
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    font-size: 14px; /* Default font size */
+                }
+
+                thead {
+                    top: 0;
+                    position: sticky;
+                    background-color: #333; /* Example background color for the header */
+                }
+
+                thead th {
+                    color: #fff; /* Example color for the header text */
+                    font-size: 16px; /* Font size for the header */
+                }
+
+                .card {
+                    border-radius: .5rem;
+                }
+
+                .table-scroll {
+                    border-radius: .5rem;
+                }
+
           </style>
 
     <!-- Conditional title/ title from flask-->

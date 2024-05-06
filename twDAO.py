@@ -94,6 +94,29 @@ class TruckwashDAO:
         finally:
             cursor.close()
             connection.close()
+# ----------------------------- wash sum ---------------------------------------
+    def getWashSum(self):
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = """SELECT 
+                        truckwash.Date, truckwash.FleetNumber, truckwash.Type, rates.Rate, 
+                        IFNULL(eq_table.CUSTOMER_CODE, 'Third Party') AS CUSTOMER_CODE
+                    FROM 
+                        truckwash
+                    LEFT JOIN 
+                        eq_table ON truckwash.FleetNumber = eq_table.CODE
+                    LEFT JOIN 
+                        rates ON truckwash.Type = rates.Type
+                    ORDER BY 
+                        truckwash.Date;"""
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            returnArray = [self.convertToDictionaryWash(result) for result in results]
+            return returnArray
+        finally:
+            cursor.close()
+            connection.close()
 
     def convertToDictionary(self, resultLine):
         attkeys = ['id', 'Date', 'FleetNumber', 'Reg', 'Type']
@@ -101,6 +124,10 @@ class TruckwashDAO:
 
     def convertToDictionaryEQ(self, resultLine):
         attkeys = ['id', 'FleetNumber', 'Reg', 'Type', 'Customer']
+        return {key: value for key, value in zip(attkeys, resultLine)}
+    
+    def convertToDictionaryWash(self, resultLine):
+        attkeys = ['Date', 'FleetNumber', 'Type', 'Rate', 'Customer']
         return {key: value for key, value in zip(attkeys, resultLine)}
 
 # Import config file
