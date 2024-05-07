@@ -122,8 +122,6 @@
 
     <!-- JavaScript-------------------------------------------------->
     <script>
-
-
         function toggleVisibility(elementId) { // show/hide panels
             var element = document.getElementById(elementId);
             if (element.style.display === "none") {
@@ -145,12 +143,12 @@
 });
 
 // recent washes ---------------------------------------------------
-        fetchLimitedPopulate(); // populate with the last few rows from SQL database
+        fetchLimitedPopulate(); // populate with the last few rows from SQL
         function fetchLimitedPopulate(){
             $.ajax({
                 url: "/getallLimSQL", // URL of the Flask route, that contains the DAO function to access mysql
                 method: "GET", 
-                dataType: "json", // expected data format as data in flask is jsonified
+                dataType: "json", // data from flask is jsonified
                 success: function(data) { // data = DAO.getAll()
                     populateTable(data); // java function defined below to populate table
                 },
@@ -267,8 +265,8 @@
 
 function doAdd(linkElement) {
 
-    document.getElementById('myInput').value = '';// reset searchbox
-
+    //document.getElementById('myInput').value = '';// reset searchbox
+    //filterTable()
     var tableHeaders = document.querySelectorAll("#full_list_table th");
     var rowElement = linkElement.parentNode.parentNode;
     var fleetNumber = rowElement.cells[1].textContent.trim(); // Index 1 corresponds to FleetNumber column

@@ -1,32 +1,32 @@
 {% extends 'layout.html' %}
 {% block content %}   
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!-- Plotly library for charts -->
-<div>
-  <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-      <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
-          <a class="nav-link active" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-          <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
-          <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
-          <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
-      </div>
+<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
+        <a class="nav-link active" id="home" data-toggle="pill" href="/" role="tab">Home</a>
+        <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+        <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
+        <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
     </div>
-    </div></div>
-    <div id="chart-container" class="container rounded-container border border-custom p-2 mt-2 shadow" style="height: 320px">
+</div>
+</div>
+<!-- The Chart container-->
+<div id="chart-container" class="container rounded-container border border-custom p-2 mt-2 shadow">
     <!-- The Chart -->
-    <div id="chart" style="height: 100%"></div>
- <!-- Details button -->
-   </div>
-   <div style="margin-top: 10px;"></div>
-   <div>
-   <span style="display: flex; justify-content: center;">
-    <button id="Details" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('table_container')">Details</button>
- </span></div>
-  <!-- The Table -->
-    <div id="table_container" class="container rounded-container border border-custom p-4 mt-4" style="display: none; max-width: 100%;">
+    <div id="chart" style="height: 300px;"></div>  
+    <!-- Details button -->
+    <div style="margin-top: 10px;"></div>
+    <div style="display: flex; justify-content: center;">
+        <button id="Details" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('table_container')">Details</button>
+    </div>
+</div>
+
+<!-- The Table -->
+<div id="table_container" class="container rounded-container border border-custom p-4 mt-4" style="display: none; max-width: 100%;">
     <div id="summarized-table-container">
-      <header class="p-4">
-        <h3 style="color:#12226c;"> Trruckwash Summary</h3>
-    </header>  
+        <header class="p-4">
+            <h3 style="color:#12226c;">Truckwash Summary</h3>
+        </header>  
         <table id="Sum_table" class="table table-light table-striped-columns">
             <thead>
                 <tr>
@@ -39,12 +39,11 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Table body content will be populated dynamically by JavaScript -->
+                <!-- populated dynamically by AJAX -->
             </tbody>
         </table>
     </div>
 </div>
-
 
     <script>
           function toggleVisibility(elementId) { // show/hide panels
@@ -88,52 +87,66 @@ $(document).ready(function() {
                 });
             }
 // ------ C H A R T -------------------------------------------------
-            // Function to generate the grouped bar chart
-            function generateChart(data) {
-                // Group data by month and customer
-                var groupedData = {};
-                data.forEach(function(entry) {
-                    if (!groupedData[entry.Month]) {
-                        groupedData[entry.Month] = {};
-                    }
-                    groupedData[entry.Month][entry.Customer] = entry.CustomerMonthly;
-                });
+// Function to generate the grouped bar chart
+function generateChart(data) {
+    // Group data by month and customer
+    var groupedData = {};
+    data.forEach(function(entry) {
+        if (!groupedData[entry.Month]) {
+            groupedData[entry.Month] = {};
+        }
+        groupedData[entry.Month][entry.Customer] = entry.CustomerMonthly;
+    });
+    // customers
+    var customers = Object.keys(data.reduce(function(acc, obj) {
+        acc[obj.Customer] = true;
+        return acc;
+    }, {}));
+    // data for the chart
+    var traceData = [];
+    customers.forEach(function(customer) {
+        var costs = [];
+        Object.keys(groupedData).forEach(function(month) {
+            costs.push(groupedData[month][customer] || 0);
+        });
+        traceData.push({
+            x: Object.keys(groupedData),
+            y: costs,
+            type: 'bar',
+            name: customer
+        });
+    });
 
-                // Extract unique customers
-                var customers = Object.keys(data.reduce(function(acc, obj) {
-                    acc[obj.Customer] = true;
-                    return acc;
-                }, {}));
-
-                // Prepare data for the chart
-                var traceData = [];
-                customers.forEach(function(customer) {
-                    var costs = [];
-                    Object.keys(groupedData).forEach(function(month) {
-                        costs.push(groupedData[month][customer] || 0);
-                    });
-                    traceData.push({
-                        x: Object.keys(groupedData),
-                        y: costs,
-                        type: 'bar',
-                        name: customer
-                    });
-                });
-
-                // Define layout
-                var layout = {
-                    barmode: 'group',
-                    title: 'Cost per Customer for Each Month',
-                    xaxis: {
-                        title: 'Month'
-                    },
-                    yaxis: {
-                        title: 'Cost'
-                    }
-                };
-                // Plot the chart
-                Plotly.newPlot('chart', traceData, layout);
-            }
+    // Define layout
+    var layout = {
+        barmode: 'group',
+        title: {
+            text: 'Cost per Customer for Each Month',
+            yref: 'container',
+            y: 0.9,
+            yanchor: 'bottom'
+        },
+        xaxis: {
+            title: 'Month',
+            automargin: true
+        },
+        yaxis: {
+            title: 'Cost €',
+            automargin: true,
+            titlepad: 400
+        },
+        margin: {l: 50, r: 40, t: 40, b: 40}, // Adjust margins
+        autosize: true,
+        showlegend: true, // show legend inside
+        legend: {
+            x: 1,
+            xanchor: 'right',
+            y: 1
+  }
+    };
+    // Plot the chart
+    Plotly.newPlot('chart', traceData, layout);
+}
         });
     </script>
 
