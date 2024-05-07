@@ -1,78 +1,141 @@
 {% extends 'layout.html' %}
 {% block content %}   
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!-- Plotly library for charts -->
 <div>
-    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
-            <a class="nav-link active" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
-            <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
-            <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
-        </div>
+  <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+      <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
+          <a class="nav-link active" id="home" data-toggle="pill" href="/" role="tab">Home</a>
+          <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+          <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
+          <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
       </div>
-      </div></div>
-        <!------wash summary--------->
-        <div id="wash summary" class="container rounded-container border border-secondary p-4 mt-4">
-            <header class="p-4">
-                <h3 style="color:#12226c;"> Fleet list</h3>
-            </header>  
-            <table id="full_list_table" class="table table-light table-striped-columns">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>FleetNumber</th>
-                        <th>Type</th>
-                        <th>Rate</th>
-                        <th>Customer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                   <!-- populated dynamically by AJAX-->
-                </tbody>
-            </table>
-        </div>
     </div>
-        <br><br>
-    <!--wash summary JavaScript-------------------------------------------------->
+    </div></div>
+    <div id="chart-container" class="container rounded-container border border-custom p-2 mt-2 shadow" style="height: 320px">
+    <!-- The Chart -->
+    <div id="chart" style="height: 100%"></div>
+ <!-- Details button -->
+   </div>
+   <div style="margin-top: 10px;"></div>
+   <div>
+   <span style="display: flex; justify-content: center;">
+    <button id="Details" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('table_container')">Details</button>
+ </span></div>
+  <!-- The Table -->
+    <div id="table_container" class="container rounded-container border border-custom p-4 mt-4" style="display: none; max-width: 100%;">
+    <div id="summarized-table-container">
+      <header class="p-4">
+        <h3 style="color:#12226c;"> Trruckwash Summary</h3>
+    </header>  
+        <table id="Sum_table" class="table table-light table-striped-columns">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Month</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Cost By Type</th>
+                    <th>Customer Monthly</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table body content will be populated dynamically by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
     <script>
-        $(document).ready(function() {
+          function toggleVisibility(elementId) { // show/hide panels
+            var element = document.getElementById(elementId);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+$(document).ready(function() {
 
-        fetchPopulate(); // populate with wash summary
-        function fetchPopulate(){
-            $.ajax({
-                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
-                method: "GET", 
-                dataType: "json", // expected data format as data in flask is jsonified
-                success: function(data) { // data = DAO.getAll()
-                    populateTable(data); // java function defined below to populate table
-                },
-                error: function(xhr, status, error) { // error handling + write error to console
-                    console.error("Error fetching data:", error);
-                }
-            });
-        }
-            function getNext() {
-            offset += limit;
-            fetchPopulate();
-        }
+            // Fetch the summarized wash data from the server using AJAX
+            fetch('/getWashSumJSON')
+                .then(response => response.json())
+                .then(data => {
+                    //console.log(data); // Log the fetched data to console
+                    // Populate summarized wash data into the table
+                    populateTable(data);
+                    // Generate the grouped bar chart using the fetched JSON data
+                    generateChart(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
 
-        function getPrevious() {
-            offset -= limit;
-            if (offset < 0) offset = 0;
-            fetchPopulate();
-        }
-        function populateTable(data) { // populate table function called above
-            var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
-            tableBody.empty(); // Clear existing rows if there was anything in the table already
-            data.forEach(function(row) { // populate from json and assign each to columns
-                var newRow = '<tr>' +
-                    '<td>' + row.id + '</td>' +
-                    '<td>' + row.FleetNumber + '</td>' +
-                    '<td>' + row.Reg + '</td>' +
-                    '<td>' + row.Type + '</td>' +
-                    '<td>' + row.Customer + '</td>' +
-                    '</tr>';
-                tableBody.append(newRow);
-            })
-        }})
+            // Function to populate summarized wash data into the table
+            function populateTable(data) {
+                var tableBody = $('#Sum_table tbody'); // Selecting the tbody of the table to populate
+                tableBody.empty(); // Clear existing rows if there were any in the table already
+                data.forEach(function(row) { // Iterate through each row of the data
+                    var newRow = '<tr>' + // Constructing a new row for the table
+                        '<td>' + row.Year + '</td>' + 
+                        '<td>' + row.Month + '</td>' + 
+                        '<td>' + row.Customer + '</td>' + 
+                        '<td>' + row.Type + '</td>' + 
+                        '<td>' + row.TotalRate + '</td>' + 
+                        '<td>' + row.CustomerMonthly + '</td>' + 
+                        '</tr>'; 
+                    tableBody.append(newRow); // Appending the new row to the table body
+                });
+            }
+// ------ C H A R T -------------------------------------------------
+            // Function to generate the grouped bar chart
+            function generateChart(data) {
+                // Group data by month and customer
+                var groupedData = {};
+                data.forEach(function(entry) {
+                    if (!groupedData[entry.Month]) {
+                        groupedData[entry.Month] = {};
+                    }
+                    groupedData[entry.Month][entry.Customer] = entry.CustomerMonthly;
+                });
+
+                // Extract unique customers
+                var customers = Object.keys(data.reduce(function(acc, obj) {
+                    acc[obj.Customer] = true;
+                    return acc;
+                }, {}));
+
+                // Prepare data for the chart
+                var traceData = [];
+                customers.forEach(function(customer) {
+                    var costs = [];
+                    Object.keys(groupedData).forEach(function(month) {
+                        costs.push(groupedData[month][customer] || 0);
+                    });
+                    traceData.push({
+                        x: Object.keys(groupedData),
+                        y: costs,
+                        type: 'bar',
+                        name: customer
+                    });
+                });
+
+                // Define layout
+                var layout = {
+                    barmode: 'group',
+                    title: 'Cost per Customer for Each Month',
+                    xaxis: {
+                        title: 'Month'
+                    },
+                    yaxis: {
+                        title: 'Cost'
+                    }
+                };
+                // Plot the chart
+                Plotly.newPlot('chart', traceData, layout);
+            }
+        });
     </script>
-    {% endblock %}
+
+
+{% endblock %}

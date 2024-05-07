@@ -100,16 +100,27 @@ class TruckwashDAO:
         cursor = connection.cursor()
         try:
             sql = """SELECT 
-                        truckwash.Date, truckwash.FleetNumber, truckwash.Type, rates.Rate, 
-                        IFNULL(eq_table.CUSTOMER_CODE, 'Third Party') AS CUSTOMER_CODE
-                    FROM 
-                        truckwash
-                    LEFT JOIN 
-                        eq_table ON truckwash.FleetNumber = eq_table.CODE
-                    LEFT JOIN 
-                        rates ON truckwash.Type = rates.Type
-                    ORDER BY 
-                        truckwash.Date;"""
+                    YEAR(truckwash.Date) AS Year,
+                    MONTH(truckwash.Date) AS Month,
+                    IFNULL(eq_table.CUSTOMER_CODE, 'Third Party') AS Customer,
+                    truckwash.Type, 
+                    SUM(rates.Rate) AS TotalRate,
+                    SUM(SUM(rates.Rate)) OVER (PARTITION BY IFNULL(eq_table.CUSTOMER_CODE, 'Third Party'), YEAR(truckwash.Date), MONTH(truckwash.Date)) AS CustomerMonthly
+                FROM 
+                    truckwash
+                LEFT JOIN 
+                    eq_table ON truckwash.FleetNumber = eq_table.CODE
+                LEFT JOIN 
+                    rates ON truckwash.Type = rates.Type
+                GROUP BY 
+                    YEAR(truckwash.Date), 
+                    MONTH(truckwash.Date),
+                    Customer,
+                    truckwash.Type
+                ORDER BY 
+                    Year DESC, 
+                    Month DESC,
+                    Customer;"""
             cursor.execute(sql)
             results = cursor.fetchall()
             returnArray = [self.convertToDictionaryWash(result) for result in results]
@@ -127,8 +138,9 @@ class TruckwashDAO:
         return {key: value for key, value in zip(attkeys, resultLine)}
     
     def convertToDictionaryWash(self, resultLine):
-        attkeys = ['Date', 'FleetNumber', 'Type', 'Rate', 'Customer']
+        attkeys = ['Year', 'Month', 'Customer', 'Type', 'TotalRate', 'CustomerMonthly']
         return {key: value for key, value in zip(attkeys, resultLine)}
+    
 
 # Import config file
 from config import TWlocal

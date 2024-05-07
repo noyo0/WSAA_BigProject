@@ -20,11 +20,14 @@ app = Flask(__name__)
 @app.route('/') # this is the index page
 def index():
         return render_template('index.html')
-        #return send_from_directory("C:/Users/norbe/OneDrive/ATU_Galway/WSAA_BigProject/WSAA_BigProject/","index.html")
 
 @app.route('/img/<filename>') #this is to display images from the img folder
 def img(filename):
         return send_from_directory('img', filename)
+
+@app.route('/test') # this is the wash list page
+def test():
+        return render_template('test.html', title='test')
 
 @app.route('/washlist') # this is the wash list page
 def washlist():
@@ -93,7 +96,6 @@ def update_wash():
         updated_data = DAO.changeWash(data)
         return jsonify(updated_data)
 
-
         # DELETE ---------------
 @app.route('/deleteWash', methods=['POST'])
 def deleteWash():
@@ -104,6 +106,16 @@ def deleteWash():
     except Exception as e:
         print("Error deleting wash:", e)  # Log the error to the console
         return jsonify({"error": "An internal server error occurred"}), 500
+    
+    # Wash summary for PivotTable.js
+@app.route('/getWashSumJSON', methods=['GET'])
+def getWashSumJSON():
+    data = DAO.getWashSum()
+    for entry in data:
+        month = entry['Month']
+        month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        entry['Month'] = month_names[month - 1]
+    return jsonify(data)
         
 if __name__ == "__main__":
     app.run(debug = True)

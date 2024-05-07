@@ -21,5 +21,6 @@ df['Month'] = df['Month'].apply(lambda x: calendar.month_name[x])
 # Group by 'Year', 'Month', and 'Customer', and aggregate 'Rate'
 summary_df = df.groupby(['Year', 'Month', 'Customer'])['Rate'].sum().reset_index()
 
-print(summary_df)
+print(DAO.getWashSum())
+
 

@@ -12,9 +12,9 @@
       </div></div>
 <!------limited List of washes--------->
 <div class="container">
-        <div id="wash_list" class="container rounded-container border border-primary p-3 mt-1">
-            <header class="p-4">
-                <h3 style="color:#12226c;"> Recently added</h3>
+        <div id="wash_list" class="container rounded-container border border-custom p-2 mt-2">
+            <header class="p-2">
+                <h5 style="color:#12226c;"> Recently added</h5>
             </header> 
             <table id="Lim_list_table" class="table">
                 <thead>
@@ -35,7 +35,7 @@
         <!-- nav button to full list -->
         </div></div>
         <!-- Add third party- --------- def non visible --------->
-        <div id='createandUpdateForm' class="container rounded-container border border-warning p-3 mt-1" style="display: none;>
+        <div id='createandUpdateForm' class="container rounded-container border border-custom p-2 mt-2 shadow" style="display: none";>
             <div class="row justify-content-left">
                 <form>
                     <header>
@@ -71,7 +71,7 @@
             </div>
         </div>
        <!--Add from search-->
-<div id='AddFromFleet' class="container rounded-container border border-success p-2 mt-2" style="max-height: 400px;">
+<div id='AddFromFleet' class="container rounded-container border border-custom p-2 mt-2" style="max-height: 400px;">
     <div class="row justify-content-center">
         <form>
             <header>
@@ -85,6 +85,7 @@
                     <button id="showForm" type="button" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('createandUpdateForm')">Not in Fleet</button>
                 </span>
                     <div id="fleet_list" class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 300px">
+
                     <table id="full_list_table" class="table table-light table-striped-columns">
                         <thead>
                             <tr>
@@ -100,6 +101,12 @@
                             <!-- populated dynamically by AJAX hopefully-->
                         </tbody>
                     </table>
+    <!-- load insicator For Edge users -->
+    <div id="loading-indicator" style="display: none;">
+    <p>Please wait...</p>
+    <p>It takes a while on Edge, you wouldn't even notice the loading time on Chrome or Brave (probably Opera too)</p>
+    <p>c'mon Edge you can do it!</p>
+    </div>
                 </div>
             </div>
         </form>
@@ -111,9 +118,13 @@
         </div>
     </div></div>        
     </div>
+
+
     <!-- JavaScript-------------------------------------------------->
     <script>
-    function toggleVisibility(elementId) { // show/hide panels
+
+
+        function toggleVisibility(elementId) { // show/hide panels
             var element = document.getElementById(elementId);
             if (element.style.display === "none") {
                 element.style.display = "block";
@@ -121,8 +132,8 @@
                 element.style.display = "none";
             }
         }
-
-        //default date for date picker
+    
+    //default date for date picker
     document.addEventListener('DOMContentLoaded', function() {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -199,11 +210,13 @@
 
         fetchPopulateFleet(); 
         function fetchPopulateFleet(){
+            toggleVisibility('loading-indicator')
             $.ajax({
                 url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
                 method: "GET", 
                 dataType: "json", // expected data format as data in flask is jsonified
                 success: function(data) { // data = DAO.getAll()
+                    toggleVisibility('loading-indicator')
                     populateTableFleet(data); // java function defined below to populate table
                 },
                 error: function(xhr, status, error) { // error handling + write error to console
