@@ -10,6 +10,7 @@
     </div>
 </div>
 </div>
+
 <!-- The Chart container-->
 <div id="chart-container" class="container rounded-container border border-custom p-2 mt-2 shadow">
     <!-- The Chart -->
@@ -18,6 +19,8 @@
     <div style="margin-top: 10px;"></div>
     <div style="display: flex; justify-content: center;">
         <button id="Details" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('table_container')">Details</button>
+        <button id="lineButton" class="btn btn-primary" style="background-color:#12226c" onclick="changeToLine()">Trends</button>
+        <button id="barButton" class="btn btn-primary" style="background-color:#12226c" onclick="changeToBar()">Cost</button>
     </div>
 </div>
 
@@ -44,7 +47,7 @@
         </table>
     </div>
 </div>
-
+<!--------------------------------------------- JavaScript-------------------------------------------------------------------------------->
     <script>
           function toggleVisibility(elementId) { // show/hide panels
             var element = document.getElementById(elementId);
@@ -87,6 +90,8 @@ $(document).ready(function() {
                 });
             }
 // ------ C H A R T -------------------------------------------------
+var traceData;
+var layout;
 // Function to generate the grouped bar chart
 function generateChart(data) {
     // Group data by month and customer
@@ -103,7 +108,7 @@ function generateChart(data) {
         return acc;
     }, {}));
     // data for the chart
-    var traceData = [];
+    traceData = [];
     customers.forEach(function(customer) {
         var costs = [];
         Object.keys(groupedData).forEach(function(month) {
@@ -118,7 +123,8 @@ function generateChart(data) {
     });
 
     // Define layout
-    var layout = {
+    if (!layout) {
+    layout = {
         barmode: 'group',
         title: {
             text: 'Cost per Customer for Each Month',
@@ -142,12 +148,37 @@ function generateChart(data) {
             x: 1,
             xanchor: 'right',
             y: 1
-  }
+        }
     };
+}
     // Plot the chart
     Plotly.newPlot('chart', traceData, layout);
 }
-        });
+        // Function to change chart type to line
+        function changeToLine() {
+                traceData.forEach(function(trace) {
+                    trace.type = 'line';
+                });
+                Plotly.react('chart', traceData, layout);
+            }
+
+        // Function to change chart type to bar
+        function changeToBar() {
+            traceData.forEach(function(trace) {
+                trace.type = 'bar';
+            });
+            Plotly.react('chart', traceData, layout);
+        }
+            // Event listener for button to change chart type to line
+    document.getElementById('lineButton').addEventListener('click', function() {
+        changeToLine();
+    });
+
+    // Event listener for button to change chart type to bar
+    document.getElementById('barButton').addEventListener('click', function() {
+        changeToBar();
+    });
+});
     </script>
 
 

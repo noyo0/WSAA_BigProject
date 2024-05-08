@@ -29,7 +29,7 @@ class TruckwashDAO:
         connection = self.connect()
         cursor = connection.cursor()
         try:
-            sql = "SELECT * FROM truckwash ORDER BY date"
+            sql = "SELECT * FROM truckwash ORDER BY date DESC"
             cursor.execute(sql)
             results = cursor.fetchall()
             returnArray = [self.convertToDictionary(result) for result in results]
