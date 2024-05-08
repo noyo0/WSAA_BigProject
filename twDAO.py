@@ -142,11 +142,13 @@ class TruckwashDAO:
         return {key: value for key, value in zip(attkeys, resultLine)}
     
 
-# Import config file
-from config import TWlocal
+        # Import config file
+#from config import TWlocal
+from config import TWhosted
 
 # Create TruckwashDAO instance with configuration from config.py
-truckwashDAO = TruckwashDAO(TWlocal)
+#truckwashDAO = TruckwashDAO(TWlocal)
+truckwashDAO = TruckwashDAO(TWhosted)
 
 # issue with "weakly-referenced object no longer exists" resolved by closing each cursor and connection
 
