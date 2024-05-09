@@ -25,14 +25,44 @@ class TruckwashDAO:
             cursor.close()
             connection.close()
 
-    def getAll(self):
+    def getAll(self, offset, limit):
         connection = self.connect()
         cursor = connection.cursor()
         try:
-            sql = "SELECT * FROM truckwash ORDER BY date DESC"
+            count_sql = "SELECT COUNT(*) FROM truckwash"
+            cursor.execute(count_sql)
+            total_count = cursor.fetchone()[0]
+            limit = min(limit, total_count)
+            sql = """SELECT 
+                        truckwash.id, truckwash.Date, truckwash.FleetNumber, truckwash.Reg, truckwash.Type, rates.Rate
+                    FROM 
+                        truckwash
+                    LEFT JOIN 
+                        rates ON truckwash.Type = rates.Type
+                        ORDER BY truckwash.date DESC       
+                    LIMIT %s, %s"""
+            cursor.execute(sql, (offset, limit))
+            results = cursor.fetchall()
+            returnArray = [self.convertToDictionaryHist(result) for result in results]
+            return returnArray
+        finally:
+            cursor.close()
+            connection.close()
+
+    def getAll_old(self):
+        connection = self.connect()
+        cursor = connection.cursor()
+        try:
+            sql = """SELECT 
+                        truckwash.id, truckwash.Date, truckwash.FleetNumber, truckwash.Reg, truckwash.Type, rates.Rate
+                    FROM 
+                        truckwash
+                    LEFT JOIN 
+                        rates ON truckwash.Type = rates.Type
+                        ORDER BY truckwash.date DESC"""
             cursor.execute(sql)
             results = cursor.fetchall()
-            returnArray = [self.convertToDictionary(result) for result in results]
+            returnArray = [self.convertToDictionaryHist(result) for result in results]
             return returnArray
         finally:
             cursor.close()
@@ -94,8 +124,8 @@ class TruckwashDAO:
         finally:
             cursor.close()
             connection.close()
-# ----------------------------- wash sum ---------------------------------------
-    def getWashSum(self):
+# ----------------------------- wash summary ---------------------------------------
+    def getWashSum(self): #per customer per type monthly
         connection = self.connect()
         cursor = connection.cursor()
         try:
@@ -120,7 +150,7 @@ class TruckwashDAO:
                 ORDER BY 
                     Year DESC, 
                     Month DESC,
-                    Customer;"""
+                    Customer"""
             cursor.execute(sql)
             results = cursor.fetchall()
             returnArray = [self.convertToDictionaryWash(result) for result in results]
@@ -129,16 +159,58 @@ class TruckwashDAO:
             cursor.close()
             connection.close()
 
-    def convertToDictionary(self, resultLine):
+    def getWashSumMonth(self): #per customer per month
+            connection = self.connect()
+            cursor = connection.cursor()
+            try:
+                sql = """SELECT 
+                        YEAR(truckwash.Date) AS Year,
+                        MONTH(truckwash.Date) AS Month,
+                        IFNULL(eq_table.CUSTOMER_CODE, 'Third Party') AS Customer,
+                        SUM(rates.Rate) AS TotalRate,
+                        SUM(SUM(rates.Rate)) OVER (PARTITION BY IFNULL(eq_table.CUSTOMER_CODE, 'Third Party'), YEAR(truckwash.Date), MONTH(truckwash.Date)) AS CustomerMonthly
+                    FROM 
+                        truckwash
+                    LEFT JOIN 
+                        eq_table ON truckwash.FleetNumber = eq_table.CODE
+                    LEFT JOIN 
+                        rates ON truckwash.Type = rates.Type
+                    GROUP BY 
+                        YEAR(truckwash.Date), 
+                        MONTH(truckwash.Date),
+                        Customer
+                    ORDER BY 
+                        Year DESC, 
+                        Month DESC,
+                        Customer"""
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                returnArray = [self.convertToDictionaryWashMonth(result) for result in results]
+                return returnArray
+            finally:
+                cursor.close()
+                connection.close()
+
+# -------------- convert SQL output to dictionary ----------------------------------
+
+    def convertToDictionary(self, resultLine): #getAllLim()
         attkeys = ['id', 'Date', 'FleetNumber', 'Reg', 'Type']
         return {key: value for key, value in zip(attkeys, resultLine)}
+    
+    def convertToDictionaryHist(self, resultLine): #getALL()
+        attkeys = ['id', 'Date', 'FleetNumber', 'Reg', 'Type', 'Rate']
+        return {key: value for key, value in zip(attkeys, resultLine)}
 
-    def convertToDictionaryEQ(self, resultLine):
+    def convertToDictionaryEQ(self, resultLine):#geAlleq()
         attkeys = ['id', 'FleetNumber', 'Reg', 'Type', 'Customer']
         return {key: value for key, value in zip(attkeys, resultLine)}
     
-    def convertToDictionaryWash(self, resultLine):
+    def convertToDictionaryWash(self, resultLine): #getWashSum()
         attkeys = ['Year', 'Month', 'Customer', 'Type', 'TotalRate', 'CustomerMonthly']
+        return {key: value for key, value in zip(attkeys, resultLine)}
+    
+    def convertToDictionaryWashMonth(self, resultLine): #getWashSumMonth()
+        attkeys = ['Year', 'Month', 'Customer', 'TotalRate']
         return {key: value for key, value in zip(attkeys, resultLine)}
     
 
@@ -151,4 +223,3 @@ from config import TWhosted
 truckwashDAO = TruckwashDAO(TWhosted)
 
 # issue with "weakly-referenced object no longer exists" resolved by closing each cursor and connection
-

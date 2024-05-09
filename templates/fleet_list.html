@@ -4,7 +4,7 @@
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
             <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash History</a>
             <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
             <a class="nav-link active" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
         </div>
@@ -32,8 +32,8 @@
             <!-- nav button for paginated list -->
             <div style="text-align: right;">
                 <span>
-            <button class="btn btn-primary" id="previousBtn" style="background-color:#bdbdbd" onclick="getPrevious()">Previous</button>
-            <button class="btn btn-primary" id="nextBtn" style="background-color:#bdbdbd" onclick="getNext()">Next</button>
+            <button class="btn btn-primary" id="previousBtn" style="background-color:#12226c" onclick="getPrevious()">Previous</button>
+            <button class="btn btn-primary" id="nextBtn" style="background-color:#12226c" onclick="getNext()">Next</button>
                 </span>  
                 <br>
                 </div>
@@ -54,11 +54,16 @@
         fetchPopulate(); // populate with the last few rows from SQL database
         function fetchPopulate(){
             $.ajax({
-                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
+                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL to the Flask route, that contains the DAO function to access mysql with variables for paginated list
                 method: "GET", 
                 dataType: "json", // expected data format as data in flask is jsonified
                 success: function(data) { // data = DAO.getAll()
                     populateTable(data); // java function defined below to populate table
+                    if (data.length < limit) {
+                        $('#nextBtn').prop('disabled', true); // Disable next button if no more records
+                    } else {
+                        $('#nextBtn').prop('disabled', false); // Enable next button if more records
+                    }
                 },
                 error: function(xhr, status, error) { // error handling + write error to console
                     console.error("Error fetching data:", error);

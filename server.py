@@ -54,7 +54,9 @@ def getall_eqSQL():
         # Read all wash------------------
 @app.route('/getallSQL', methods=['GET']) # this is getting mysql data for the washlikst at @/wash
 def getallSQL():
-    data = DAO.getAll()
+    offset = request.args.get('offset', default=0, type=int)
+    limit = request.args.get('limit', default=20, type=int)
+    data = DAO.getAll(offset, limit)
     # Format the date to (06/Jun/24)
     for entry in data:
         entry['Date'] = entry['Date'].strftime('%d/%b/%Y')  # Assuming 'Date' is a datetime object
@@ -107,7 +109,7 @@ def deleteWash():
         print("Error deleting wash:", e)  # Log the error to the console
         return jsonify({"error": "An internal server error occurred"}), 500
     
-    # Wash summary for PivotTable.js
+    # Wash summary for Plotly chart---------------------------------------------------------
 @app.route('/getWashSumJSON', methods=['GET'])
 def getWashSumJSON():
     data = DAO.getWashSum()
@@ -116,6 +118,16 @@ def getWashSumJSON():
         month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         entry['Month'] = month_names[month - 1]
     return jsonify(data)
-        
+
+    # Wash summary for Plotly chart---------------------------------------------------------
+@app.route('/getWashSumMonth', methods=['GET'])
+def getWashSumMonth():
+    data = DAO.getWashSumMonth()
+    for entry in data:
+        month = entry['Month']
+        month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        entry['Month'] = month_names[month - 1]
+    return jsonify(data)
+
 if __name__ == "__main__":
     app.run(debug = True)

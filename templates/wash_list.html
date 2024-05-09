@@ -4,7 +4,7 @@
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
             <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-            <a class="nav-link active" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+            <a class="nav-link active" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash History</a>
             <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
             <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
         </div>
@@ -13,9 +13,16 @@
 </div> 
         <!------List of washes--------->
         <div id="wash_list" class="container rounded-container border border-custom p-2 mt-2">
-            <header class="p-4">
-                <h3 style="color:#12226c;"> Wash history</h3>
-            </header>  
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Header -->
+                <header class="p-4">
+                    <h3 style="color:#12226c;">Wash history</h3>
+                </header>
+                <!-- Button -->
+                <span>
+                    <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/addwash'">Add new wash</button>
+                </span>
+            </div>
             <table id="full_list_table" class="table table-light table-striped-columns">
                 <thead>
                     <tr>
@@ -24,6 +31,7 @@
                         <th>Fleet Number</th>
                         <th>Reg</th>
                         <th>Type</th>
+                        <th>Rate</th>
                         <th>Update</th>
                         <th>Delete</th>
                     </tr>
@@ -32,24 +40,51 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
-                <!-- nav button to add wash -->
+                            <!-- nav button for paginated list -->
+            <div style="text-align: right;">
                 <span>
-                    <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = 'http://127.0.0.1:5000/addwash'">Add new wash</button>
-                </span>
+            <button class="btn btn-primary" id="previousBtn" style="background-color:#12226c" onclick="getPrevious()">Previous</button>
+            <button class="btn btn-primary" id="nextBtn" style="background-color:#12226c" onclick="getNext()">Next</button>
+                </span>  
+                <br>
+                </div>
         </div>
         
         <br><br>
     
     <!-- JavaScript-------------------------------------------------->
     <script>
+
+                // pagination
+                var offset = 0; 
+        var limit = 20;
+
+        function getNext() {
+            offset += limit;
+            fetchPopulate();
+        }
+
+        function getPrevious() {
+            offset -= limit;
+            if (offset < 0) offset = 0;
+            fetchPopulate();
+        }
+
+
         fetchPopulate(); // populate with the last few rows from SQL database
         function fetchPopulate(){
             $.ajax({
-                url: "/getallSQL", // URL of the Flask route, that contains the DAO function to access mysql
+                url: "/getallSQL?offset=" + offset + "&limit=" + limit, // URL to the Flask route, with variables for the DAO
                 method: "GET", 
                 dataType: "json", // expected data format as data in flask is jsonified
-                success: function(data) { // data = DAO.getAll()
+                success: function(data) { // data from DAO.getAll()
                     populateTable(data); // java function defined below to populate table
+                    // Check if there are more records
+                    if (data.length < limit) {
+                        $('#nextBtn').prop('disabled', true); // Disable next button if no more records
+                    } else {
+                        $('#nextBtn').prop('disabled', false); // Enable next button if more records
+                    }
                 },
                 error: function(xhr, status, error) { // error handling + write error to console
                     console.error("Error fetching data:", error);
@@ -60,18 +95,22 @@
             var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
             tableBody.empty(); // Clear existing rows if there was anything in the table already
             data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
+                var fRate = Number(row.Rate).toLocaleString('en-US', { style: 'currency', currency: 'EUR' }); // convert to €
                 var newRow = '<tr>' +
                     '<td>' + row.id + '</td>' +
                     '<td>' + row.Date + '</td>' +
                     '<td>' + row.FleetNumber + '</td>' +
                     '<td>' + row.Reg + '</td>' +
                     '<td>' + row.Type + '</td>' +
+                    '<td>' + fRate + '</td>' +
                     '<td><a href="#" onclick="doChange(this)">Change</a></td>' +
                     '<td><a href="#" onclick="doDelete(this)">Delete</a></td>' +
                     '</tr>';
                 tableBody.append(newRow);
             })
         }
+
+//--------------- manipulate data ----------------------
         function storeFormValues() {
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
@@ -82,22 +121,6 @@
             console.log(wash)
             return wash;
 }
-        function addWashToDatabase() {
-            var wash = storeFormValues(); // Get the form values
-            $.ajax({ // Send the wash data to the server using AJAX
-                url: "/addwashSQL", // URL of the Flask route that saves the new wash data
-                method: "POST",
-                data: JSON.stringify(wash),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(response) {
-                    fetchLimitedPopulate()
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error saving wash data:", error);
-                }}
-            )}
-
 //DELETE------------------------------------------------------------------------------
     function doDelete(linkElement) {
     var tableHeaders = document.querySelectorAll("#full_list_table th");

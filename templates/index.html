@@ -4,7 +4,7 @@
 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
     <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
         <a class="nav-link active" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-        <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+        <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash History</a>
         <a class="nav-link" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
         <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
     </div>
@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<!-- The Table -->
+<!-- The details Table -->
 <div id="table_container" class="container rounded-container border border-custom p-4 mt-4" style="display: none; max-width: 100%;">
     <div id="summarized-table-container">
         <header class="p-4">
@@ -47,6 +47,28 @@
         </table>
     </div>
 </div>
+
+<!-- The monthly Summary Table -->
+<div id="table_container" class="container rounded-container border border-custom p-4 mt-4" style="display: block; max-width: 100%;">
+    <div id="SumMonth-table-container">
+        <header class="p-4">
+            <h3 style="color:#12226c;">Truckwash Monthly Summary</h3>
+        </header>  
+        <table id="SumMonth_table" class="table table-light table-striped-columns">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Month</th>
+                    <th>Customer</th>
+                    <th>Monthly Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- populated dynamically by AJAX -->
+            </tbody>
+        </table>
+    </div>
+</div>
 <!--------------------------------------------- JavaScript-------------------------------------------------------------------------------->
     <script>
           function toggleVisibility(elementId) { // show/hide panels
@@ -57,38 +79,73 @@
                 element.style.display = "none";
             }
         }
-$(document).ready(function() {
 
-            // Fetch the summarized wash data from the server using AJAX
-            fetch('/getWashSumJSON')
-                .then(response => response.json())
-                .then(data => {
-                    //console.log(data); // Log the fetched data to console
-                    // Populate summarized wash data into the table
-                    populateTable(data);
-                    // Generate the grouped bar chart using the fetched JSON data
-                    generateChart(data);
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
+        $(document).ready(function() {
 
-            // Function to populate summarized wash data into the table
-            function populateTable(data) {
-                var tableBody = $('#Sum_table tbody'); // Selecting the tbody of the table to populate
-                tableBody.empty(); // Clear existing rows if there were any in the table already
-                data.forEach(function(row) { // Iterate through each row of the data
-                    var newRow = '<tr>' + // Constructing a new row for the table
-                        '<td>' + row.Year + '</td>' + 
-                        '<td>' + row.Month + '</td>' + 
-                        '<td>' + row.Customer + '</td>' + 
-                        '<td>' + row.Type + '</td>' + 
-                        '<td>' + row.TotalRate + '</td>' + 
-                        '<td>' + row.CustomerMonthly + '</td>' + 
-                        '</tr>'; 
-                    tableBody.append(newRow); // Appending the new row to the table body
-                });
-            }
+//---------------- monthly summary overview ----------------------------------------
+
+// Fetch the summarized wash data from the server using AJAX
+fetch('/getWashSumMonth')
+    .then(response => response.json())
+    .then(data => {
+        //console.log("getWashSumMonth SQL output:", data);
+        // Populate summarized wash data into the table
+        populateMonthTable(data);
+        // Generate the grouped bar chart using the fetched JSON data
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+
+    function populateMonthTable(data) {
+    var tableBody = $('#SumMonth_table tbody'); // table to populate
+    tableBody.empty(); // Clear existing rows if there were any in the table already
+    data.forEach(function(row) {
+        // Format the rate/cost to be €#,###.xx
+        var formattedRate = Number(row.TotalRate).toLocaleString('en-US', { style: 'currency', currency: 'EUR' });
+        var newRow = '<tr>' +
+            '<td>' + row.Year + '</td>' +
+            '<td>' + row.Month + '</td>' +
+            '<td>' + row.Customer + '</td>' +
+            '<td>' + formattedRate + '</td>' + // Use the formatted rate/cost here
+            '</tr>';
+        tableBody.append(newRow); // Appending the new row to the table body
+    });
+}
+
+// ------------- summary details ----------------------------------------
+// Fetch the summarized wash data from the server using AJAX
+fetch('/getWashSumJSON')
+    .then(response => response.json())
+    .then(data => {
+        //console.log("getWashSumJSON SQL output:", data);
+        // Populate summarized wash data into the table
+        populateTable(data);
+        // Generate the grouped bar chart using the fetched JSON data
+        generateChart(data);
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+
+function populateTable(data) {
+    var tableBody = $('#Sum_table tbody'); // table to populate
+    tableBody.empty(); // Clear existing rows if there were any in the table already
+    data.forEach(function(row) {
+        var fTotalRate = Number(row.TotalRate).toLocaleString('en-US', { style: 'currency', currency: 'EUR' });
+        var fCustomerMonthly = Number(row.CustomerMonthly).toLocaleString('en-US', { style: 'currency', currency: 'EUR' });
+        var newRow = '<tr>' +
+            '<td>' + row.Year + '</td>' +
+            '<td>' + row.Month + '</td>' +
+            '<td>' + row.Customer + '</td>' +
+            '<td>' + row.Type + '</td>' +
+            '<td>' + fTotalRate + '</td>' +
+            '<td>' + fCustomerMonthly + '</td>' +
+            '</tr>';
+        tableBody.append(newRow); // Appending the new row to the table body
+    });
+}
+
 // ------ C H A R T -------------------------------------------------
 var traceData;
 var layout;
@@ -124,30 +181,30 @@ function generateChart(data) {
 
     // Define layout
     if (!layout) {
-    layout = {
-        barmode: 'group',
-        title: {
-            text: 'Cost per Customer for Each Month',
-            yref: 'container',
-            y: 0.9,
-            yanchor: 'bottom'
-        },
-        xaxis: {
-            title: 'Month',
-            automargin: true
-        },
-        yaxis: {
-            title: 'Cost €',
-            automargin: true,
-            titlepad: 400
-        },
-        margin: {l: 50, r: 40, t: 40, b: 40}, // Adjust margins
-        autosize: true,
-        showlegend: true, // show legend inside
-        legend: {
-            x: 1,
-            xanchor: 'right',
-            y: 1
+        layout = {
+            barmode: 'group',
+            title: {
+                text: 'Cost per Customer for Each Month',
+                yref: 'container',
+                y: 0.9,
+                yanchor: 'bottom'
+            },
+            xaxis: {
+                title: 'Month',
+                automargin: true
+            },
+            yaxis: {
+                title: 'Cost €',
+                automargin: true,
+                titlepad: 400
+            },
+            margin: { l: 50, r: 40, t: 40, b: 40 }, // Adjust margins
+            autosize: true,
+            showlegend: true, // show legend inside
+            legend: {
+                x: 1,
+                xanchor: 'right',
+                y: 1
         }
     };
 }
@@ -180,6 +237,4 @@ function generateChart(data) {
     });
 });
     </script>
-
-
 {% endblock %}

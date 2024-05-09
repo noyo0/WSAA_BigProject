@@ -4,7 +4,7 @@
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
             <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
-            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash List</a>
+            <a class="nav-link" id="v-pills-washlist-tab" data-toggle="pill" href="/washlist" role="tab">Wash History</a>
             <a class="nav-link active" id="v-pills-addwash-tab" data-toggle="pill" href="/addwash" role="tab">Add Wash</a>
             <a class="nav-link" id="v-pills-fleetlist-tab" data-toggle="pill" href="/fleetlist" role="tab">Fleet List</a>
         </div>
@@ -35,7 +35,7 @@
         <!-- nav button to full list -->
         </div></div>
         <!-- Add third party- --------- def non visible --------->
-        <div id='createandUpdateForm' class="container rounded-container border border-custom p-2 mt-2 shadow" style="display: none";>
+        <div id='createandUpdateForm' class="container rounded-container border border-warning p-2 mt-2 shadow" style="display: none";>
             <div class="row justify-content-left">
                 <form>
                     <header>
@@ -138,8 +138,8 @@
     var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
     var yyyy = today.getFullYear();
     var formattedDate = yyyy + '-' + mm + '-' + dd;
-    document.getElementById('datePicker').value = formattedDate;
-    document.getElementById('datePicker2').value = formattedDate;
+    document.getElementById('datePicker').value = formattedDate; //datepicker in createandUpdateForm
+    document.getElementById('datePicker2').value = formattedDate; //datepicker in Add from fleet form 
 });
 
 // recent washes ---------------------------------------------------
@@ -149,7 +149,7 @@
                 url: "/getallLimSQL", // URL of the Flask route, that contains the DAO function to access mysql
                 method: "GET", 
                 dataType: "json", // data from flask is jsonified
-                success: function(data) { // data = DAO.getAll()
+                success: function(data) { // data = DAO.getAll() in JSON
                     populateTable(data); // java function defined below to populate table
                 },
                 error: function(xhr, status, error) { // error handling + write error to console
@@ -160,7 +160,7 @@
         function populateTable(data) { // populate table function called above
             var tableBody = $('#Lim_list_table tbody'); // this is the HTML table element to populate
             tableBody.empty(); // Clear existing rows if there was anything in the table already
-            data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
+            data.forEach(function(row) { // populate from json (from DAO.getall()) where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
                 var newRow = '<tr>' +
                     '<td>' + row.id + '</td>' +
                     '<td>' + row.Date + '</td>' +
@@ -239,7 +239,7 @@
             })
         }
 
-// table search
+// table search from fleet -----------------------------------------------------------------------------------------
         function filterTable() {
                 var input, filter, table, tr, td, i, txtValue;
                 input = document.getElementById("myInput");
@@ -390,7 +390,7 @@ function doAdd(linkElement) {
     });
 }
 // update/change---------------v1.0----------------------------------------------------------------------
-
+// update/change-------------------------------------------------------------------------------------
 function doChange(linkElement) {
         var tableHeaders = document.querySelectorAll("#Lim_list_table th");
         var rowElement = linkElement.parentNode.parentNode;
