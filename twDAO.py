@@ -1,3 +1,5 @@
+# WSAA 2024 - End of Semester Project (Truckwash) Author: Norbert Antal
+
 import mysql.connector as connector
 import datetime
 
@@ -42,25 +44,6 @@ class TruckwashDAO:
                         ORDER BY truckwash.date DESC       
                     LIMIT %s, %s"""
             cursor.execute(sql, (offset, limit))
-            results = cursor.fetchall()
-            returnArray = [self.convertToDictionaryHist(result) for result in results]
-            return returnArray
-        finally:
-            cursor.close()
-            connection.close()
-
-    def getAll_old(self):
-        connection = self.connect()
-        cursor = connection.cursor()
-        try:
-            sql = """SELECT 
-                        truckwash.id, truckwash.Date, truckwash.FleetNumber, truckwash.Reg, truckwash.Type, rates.Rate
-                    FROM 
-                        truckwash
-                    LEFT JOIN 
-                        rates ON truckwash.Type = rates.Type
-                        ORDER BY truckwash.date DESC"""
-            cursor.execute(sql)
             results = cursor.fetchall()
             returnArray = [self.convertToDictionaryHist(result) for result in results]
             return returnArray
