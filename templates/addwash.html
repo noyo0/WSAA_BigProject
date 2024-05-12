@@ -189,7 +189,7 @@
             $.ajax({ // Send the wash data to the server using AJAX
                 url: "/addwashSQL", // URL of the Flask route that saves the new wash data
                 method: "POST",
-                data: JSON.stringify(wash),
+                data: JSON.stringify(wash), // captured data from the form
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(response) {

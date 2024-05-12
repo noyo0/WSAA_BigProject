@@ -1,33 +1,34 @@
 # WSAA 2024 - End of Semester Project (Truckwash) Author: Norbert Antal
+# Truckwas DAO for accessing and manipulation SQL data
 
-import mysql.connector as connector
+import mysql.connector as connector # mysql-connector-python python module to interact with SQL
 import datetime
 
-class TruckwashDAO:
+class TruckwashDAO: # create DAO class with external config details as cfg
     def __init__(self, cfg):
         self.cfg = cfg
 
     def connect(self):
-        return connector.connect(**self.cfg)
-
-    def getAlleq(self, offset, limit):
+        return connector.connect(**self.cfg) # connect to database with the stored config
+# get data for equipment list
+    def getAlleq(self, offset, limit): #offset and limit for pagination
         connection = self.connect()
         cursor = connection.cursor()
         try:
-            count_sql = "SELECT COUNT(*) FROM eq_table"
+            count_sql = "SELECT COUNT(*) FROM eq_table" # count max row number for pagination (limit)
             cursor.execute(count_sql)
             total_count = cursor.fetchone()[0]
-            limit = min(limit, total_count)
-            sql = "SELECT * FROM eq_table LIMIT %s, %s"
+            limit = min(limit, total_count) # calculate max limit for the SQL query
+            sql = "SELECT * FROM eq_table LIMIT %s, %s" # get limited length equipment list
             cursor.execute(sql, (offset, limit))
             results = cursor.fetchall()
-            returnArray = [self.convertToDictionaryEQ(result) for result in results]
+            returnArray = [self.convertToDictionaryEQ(result) for result in results] # call function to convert SQL output to dictionary
             return returnArray
-        finally:
+        finally: # close everything
             cursor.close()
             connection.close()
 
-    def getAll(self, offset, limit):
+    def getAll(self, offset, limit): # get paginated wash entries with rates for each wash
         connection = self.connect()
         cursor = connection.cursor()
         try:
@@ -35,7 +36,8 @@ class TruckwashDAO:
             cursor.execute(count_sql)
             total_count = cursor.fetchone()[0]
             limit = min(limit, total_count)
-            sql = """SELECT 
+            # SQL query to get combnined data from truckwash table and rates table
+            sql = """SELECT
                         truckwash.id, truckwash.Date, truckwash.FleetNumber, truckwash.Reg, truckwash.Type, rates.Rate
                     FROM 
                         truckwash
@@ -205,4 +207,4 @@ from config import TWhosted
 #truckwashDAO = TruckwashDAO(TWlocal)
 truckwashDAO = TruckwashDAO(TWhosted)
 
-# issue with "weakly-referenced object no longer exists" resolved by closing each cursor and connection
+# issue with "weakly-referenced object no longer exists" resolved by closing each cursor and connection and moving cnfig to the end (?)
