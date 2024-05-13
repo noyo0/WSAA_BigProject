@@ -43,7 +43,7 @@ def addwash():
         return render_template('addwash.html', title='Add Wash')
 
 # DATA ACCESS -----------------------------------------------------------------------------------------------------------------------
-        # Read all fleet, a paginated fleet list------------------
+        # Read fleet list with variablkes for pagination-----
 @app.route('/getall_eqSQL', methods=['GET']) 
 def getall_eqSQL():
     offset = request.args.get('offset', default=0, type=int) #where to start paginated list

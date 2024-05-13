@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}   
-<div>
+<div>  <!-- Sidebar menu -->
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <div class="m-container" style="width: 180px; position: absolute; left: 10; top: 10;">
             <a class="nav-link" id="home" data-toggle="pill" href="/" role="tab">Home</a>
@@ -22,7 +22,7 @@
                 <span>
                     <button id="butt_add_new" class="btn btn-primary" style="background-color:#12226c" onclick="window.location.href = '/addwash'">Add new wash</button>
                 </span>
-            </div>
+            </div> <!-- Table to populate -->
             <table id="full_list_table" class="table table-light table-striped-columns">
                 <thead>
                     <tr>
@@ -37,7 +37,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                   <!-- populated dynamically by AJAX-->
+                   <!-- content populated dynamically by AJAX-->
                 </tbody>
             </table>
                             <!-- nav button for paginated list -->
@@ -55,29 +55,28 @@
     <!-- JavaScript-------------------------------------------------->
     <script>
 
-                // pagination
-                var offset = 0; 
+        // pagination
+        var offset = 0; 
         var limit = 20;
 
-        function getNext() {
+        function getNext() { // add limit to offset (load next 20 rows)
             offset += limit;
             fetchPopulate();
         }
 
-        function getPrevious() {
+        function getPrevious() { // take limit from offset (load previous 20 rows)
             offset -= limit;
             if (offset < 0) offset = 0;
             fetchPopulate();
         }
 
-
-        fetchPopulate(); // populate with the last few rows from SQL database
+        fetchPopulate(); // AJAX request to get the data from the server (accessing SQL database)
         function fetchPopulate(){
             $.ajax({
                 url: "/getallSQL?offset=" + offset + "&limit=" + limit, // URL to the Flask route, with variables for the DAO
                 method: "GET", 
                 dataType: "json", // expected data format as data in flask is jsonified
-                success: function(data) { // data from DAO.getAll()
+                success: function(data) { 
                     populateTable(data); // java function defined below to populate table
                     // Check if there are more records
                     if (data.length < limit) {
@@ -91,10 +90,10 @@
                 }
             });
         }
-        function populateTable(data) { // populate table function called above
+        function populateTable(data) { // populate table from fetchPopulate data
             var tableBody = $('#full_list_table tbody'); // this is the HTML table element to populate
             tableBody.empty(); // Clear existing rows if there was anything in the table already
-            data.forEach(function(row) { // populate from json where the keys are "Date", "FleetNumber", "Reg", "Type", and "id" + adds the extra buttons
+            data.forEach(function(row) { //
                 var fRate = Number(row.Rate).toLocaleString('en-US', { style: 'currency', currency: 'EUR' }); // convert to €
                 var newRow = '<tr>' +
                     '<td>' + row.id + '</td>' +
@@ -111,7 +110,7 @@
         }
 
 //--------------- manipulate data ----------------------
-        function storeFormValues() {
+        function storeFormValues() { // capture data from Third Party form
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
             wash.date = form.querySelector('input[name="date"]').value;
@@ -184,14 +183,14 @@
         var wash_id = rowElement.cells[0].firstChild.textContent;
         var rowDetails = "";
 
-        for (var i = 1; i < tableHeaders.length-3; i++) { //show only manual entry fields (skip ID and leave out buttons from the row)
+        for (var i = 1; i < tableHeaders.length-3; i++) { //offset i to show only manual entry fields (skip ID and leave out button-links from the row)
             var headerText = tableHeaders[i].textContent;
             var cellContent = rowElement.cells[i].textContent;
                 
                 if (headerText === "Type") {
-                // Create a dropdown for the Type field
+                // Create a dropdown for the Equipment Type field 
                 rowDetails += "<div class='form-group'><label for='edit-" + i + "'>" + headerText + ":</label><select class='custom-select custom-select-sm' id='edit-" + i + "'>";
-                var typeOptions = ["Euroliner", "Trailer", "Fridge", "Third Party"];
+                var typeOptions = ["Truck","Euroliner", "Trailer", "Fridge", "Third Party"];
                 for (var j = 0; j < typeOptions.length; j++) {
                     var selected = (typeOptions[j] === cellContent) ? "selected" : "";
                     rowDetails += "<option value='" + typeOptions[j] + "' " + selected + ">" + typeOptions[j] + "</option>";
@@ -203,14 +202,14 @@
             }
         }
 
-        Swal.fire({//SweetAlert2 popup message handler module
+        Swal.fire({//SweetAlert2 popup message handler
             title: "Edit Wash",
             html: "<div style='text-align: left;'>" + rowDetails + "</div>",
             showCancelButton: true,
             confirmButtonText: "Save Changes",
-            preConfirm: () => {
+            preConfirm: () => { // set contents for the confirm popup
                 var updatedData = {};
-                for (var i = 1; i < tableHeaders.length-2; i++) { //store only manual entry fields (skip ID and leave out buttons from the row)
+                for (var i = 1; i < tableHeaders.length-3; i++) {// capture data from form 
                     var headerText = tableHeaders[i].textContent;
                     var inputValue = document.getElementById('edit-' + i).value;
                     if (headerText === "Type") {

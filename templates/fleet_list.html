@@ -44,8 +44,8 @@
     <script>
         $(document).ready(function() {
         // variables for pagination
-        var offset = 0; 
-        var limit = 20;
+        var offset = 0; // starting point fro pagination
+        var limit = 20; // default page lenght for pagination
 
     //event listeners to the buttons
     $("#previousBtn").click(getPrevious);
@@ -71,12 +71,12 @@
             });
         }
             function getNext() {
-            offset += limit;
+            offset += limit; // previous offset + limit
             fetchPopulate();
         }
 
         function getPrevious() {
-            offset -= limit;
+            offset -= limit; // previous offset - limit (if offset not 0)
             if (offset < 0) offset = 0;
             fetchPopulate();
         }
