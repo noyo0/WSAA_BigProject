@@ -209,7 +209,7 @@
             confirmButtonText: "Save Changes",
             preConfirm: () => { // set contents for the confirm popup
                 var updatedData = {};
-                for (var i = 1; i < tableHeaders.length-3; i++) {// capture data from form 
+                for (var i = 1; i < tableHeaders.length-3; i++) {// capture data from form (offset i the same as the headers)
                     var headerText = tableHeaders[i].textContent;
                     var inputValue = document.getElementById('edit-' + i).value;
                     if (headerText === "Type") {
@@ -223,7 +223,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send AJAX request to update the wash
+                // Send AJAX request to update the wash record
                 $.ajax({
                     url: "/updateWash",
                     method: "POST",
@@ -236,7 +236,7 @@
                             text: "Your wash has been updated.",
                             icon: "success"
                         }).then((result) => {
-                            fetchPopulate();
+                            fetchPopulate(); // reload the table to show chnaged record
                         });
                     },
                     error: function(xhr, status, error) {
