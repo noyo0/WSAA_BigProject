@@ -107,7 +107,7 @@ def deleteWash():
         print("Error deleting wash:", e)  # Log the error to the console
         return jsonify({"error": "An internal server error occurred"}), 500
     
-    # Wash summary for Plotly chart  / details matrix (per month per Eq type per customer) ---------------------------------------------------------
+    # Wash summary for Plotly chart  & details matrix (per month per Eq type per customer) ---------------------------------------------------------
 @app.route('/getWashSumJSON', methods=['GET'])
 def getWashSumJSON():
     data = DAO.getWashSum()
@@ -117,7 +117,7 @@ def getWashSumJSON():
         entry['Month'] = month_names[month - 1] # rename months as above for for X axis/ matrix table
     return jsonify(data)
 
-    # Wash summary for Plotly chart / sum matrix(per month per customer)---------------------------------------------------------
+    # Wash summary for Plotly chart + sum matrix(per month per customer)---------------------------------------------------------
 @app.route('/getWashSumMonth', methods=['GET'])
 def getWashSumMonth():
     data = DAO.getWashSumMonth()

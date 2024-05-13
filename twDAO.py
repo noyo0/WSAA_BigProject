@@ -15,7 +15,7 @@ class TruckwashDAO: # create DAO class with external config details as cfg
         connection = self.connect()
         cursor = connection.cursor()
         try:
-            count_sql = "SELECT COUNT(*) FROM eq_table" # count max row number for pagination (limit)
+            count_sql = "SELECT COUNT(*) FROM eq_table" # count max row number for pagination (max limit)
             cursor.execute(count_sql)
             total_count = cursor.fetchone()[0]
             limit = min(limit, total_count) # calculate max limit for the SQL query
