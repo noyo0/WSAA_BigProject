@@ -101,12 +101,15 @@
                             <!-- populated dynamically by AJAX hopefully-->
                         </tbody>
                     </table>
-    <!-- load insicator For Edge users -->
-    <div id="loading-indicator" style="display: none;">
-    <p>Please wait...</p>
-    <p>It takes a while on Edge, you wouldn't even notice the loading time on Chrome or Brave (probably Opera too)</p>
-    <p>c'mon Edge you can do it!</p>
-    </div>
+                    <!-- load indicator For Edge users -->
+                    <div id="loading-indicator" style="display: none;">
+                        <div class="loader-container">
+                        <div class="loader"></div>
+                        <div class="container p-4 mt-4">
+                        <p>...Please wait...</p>
+                        <p>It takes a while on Edge... Chrome is quicker.</p>
+                        </div></div>
+                    </div>
                 </div>
             </div>
         </form>

@@ -1,3 +1,5 @@
+<!-- WSAA 2024 - BigProject (Truckwash) Author: Norbert Antal -->
+<!-- this page contains a paginated wash history with Edit and Delete functions-->
 {% extends 'layout.html' %}
 {% block content %}   
 <div>  <!-- Sidebar menu -->
@@ -40,7 +42,7 @@
                    <!-- content populated dynamically by AJAX-->
                 </tbody>
             </table>
-                            <!-- nav button for paginated list -->
+                            <!-- nav button for paginated list navigation-->
             <div style="text-align: right;">
                 <span>
             <button class="btn btn-primary" id="previousBtn" style="background-color:#12226c" onclick="getPrevious()">Previous</button>
@@ -52,9 +54,8 @@
         
         <br><br>
     
-    <!-- JavaScript-------------------------------------------------->
+<!-- -----------------JavaScript-------------------------------------------------->
     <script>
-
         // pagination
         var offset = 0; 
         var limit = 20;
@@ -110,6 +111,7 @@
         }
 
 //--------------- manipulate data ----------------------
+
         function storeFormValues() { // capture data from Third Party form
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
@@ -176,14 +178,14 @@
         }
     });
 }
-            // update/change-------------------------------------------------------------------------------------
+// UPDATE/change-------------------------------------------------------------------------------------
     function doChange(linkElement) {
         var tableHeaders = document.querySelectorAll("#full_list_table th");
         var rowElement = linkElement.parentNode.parentNode;
         var wash_id = rowElement.cells[0].firstChild.textContent;
         var rowDetails = "";
 
-        for (var i = 1; i < tableHeaders.length-3; i++) { //offset i to show only manual entry fields (skip ID and leave out button-links from the row)
+        for (var i = 1; i < tableHeaders.length-3; i++) { //offset i to show only manual entry fields (skip ID and leave out rate and button-links from the row)
             var headerText = tableHeaders[i].textContent;
             var cellContent = rowElement.cells[i].textContent;
                 
@@ -209,7 +211,7 @@
             confirmButtonText: "Save Changes",
             preConfirm: () => { // set contents for the confirm popup
                 var updatedData = {};
-                for (var i = 1; i < tableHeaders.length-3; i++) {// capture data from form (offset i the same as the headers)
+                for (var i = 1; i < tableHeaders.length-3; i++) {// capture data from SweetAlert form (offset i the same as the headers)
                     var headerText = tableHeaders[i].textContent;
                     var inputValue = document.getElementById('edit-' + i).value;
                     if (headerText === "Type") {
@@ -223,7 +225,7 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send AJAX request to update the wash record
+                // Send AJAX request to update the wash record with data captured above @ ID captured from 'wash_id'
                 $.ajax({
                     url: "/updateWash",
                     method: "POST",
@@ -239,8 +241,8 @@
                             fetchPopulate(); // reload the table to show chnaged record
                         });
                     },
-                    error: function(xhr, status, error) {
-                        console.log("SQL query executed:", response.sql_query);
+                    error: function(xhr, status, error) {//error handling
+                        //console.log("SQL query executed:", response.sql_query);
                         console.error("Error updating wash:", error);
                         Swal.fire({
                             title: "Error",
