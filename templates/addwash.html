@@ -1,3 +1,5 @@
+<!-- WSAA 2024 - BigProject (Truckwash) Author: Norbert Antal -->
+<!--This page is designed as the main function of the web application, providing easy access for the user to add, review and manipulate truckwash data.-->
 {% extends 'layout.html' %}
 {% block content %}
 <div>
@@ -10,7 +12,7 @@
         </div>
       </div>
       </div></div>
-<!------limited List of washes--------->
+<!------Recently added washes----limited wash list by wash ID descending----->
 <div class="container">
         <div id="wash_list" class="container rounded-container border border-custom p-2 mt-2">
             <header class="p-2">
@@ -32,9 +34,8 @@
                    <!-- populated dynamically by AJAX-->
                 </tbody>
             </table>
-        <!-- nav button to full list -->
         </div></div>
-        <!-- Add third party- --------- def non visible --------->
+        <!-- Add third party panel- ---default non-visible --------->
         <div id='createandUpdateForm' class="container rounded-container border border-warning p-2 mt-2 shadow" style="display: none";>
             <div class="row justify-content-left">
                 <form>
@@ -70,18 +71,19 @@
                 </form>
             </div>
         </div>
-       <!--Add from search-->
+       <!--Add from fleet -->
 <div id='AddFromFleet' class="container rounded-container border border-custom p-2 mt-2" style="max-height: 400px;">
     <div class="row justify-content-center">
         <form>
             <header>
                 <h5 style="color:#12226c">Add from fleet</h5> 
             </header>
-            <!--Add visibility buttons-->
+            <!--Fleet list with search/filter-->
             <div class="form-group">
                 <span style="display: flex; justify-content: left;">
                     <input type="text" id="myInput" onkeyup="filterTable()" placeholder="Search for Fleet Number..." title="Type in a Fleet Number">
                     <div style="margin-right: 10px;"></div>
+                    <!--button to toggle Third party wash panel visible-->
                     <button id="showForm" type="button" class="btn btn-primary" style="background-color:#12226c" onclick="toggleVisibility('createandUpdateForm')">Not in Fleet</button>
                 </span>
                     <div id="fleet_list" class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 300px">
@@ -101,7 +103,7 @@
                             <!-- populated dynamically by AJAX hopefully-->
                         </tbody>
                     </table>
-                    <!-- load indicator For Edge users -->
+                    <!-- load indicator for Edge users :/  -->
                     <div id="loading-indicator" style="display: none;">
                         <div class="loader-container">
                         <div class="loader"></div>
@@ -123,7 +125,7 @@
     </div>
 
 
-    <!-- JavaScript-------------------------------------------------->
+<!-- ------------------JavaScript--------------------------------------------->
     <script>
         function toggleVisibility(elementId) { // show/hide panels
             var element = document.getElementById(elementId);
@@ -155,7 +157,7 @@
                 success: function(data) { // data = DAO.getAll() in JSON
                     populateTable(data); // java function defined below to populate table
                 },
-                error: function(xhr, status, error) { // error handling + write error to console
+                error: function(xhr, status, error) { // error handling
                     console.error("Error fetching data:", error);
                 }
             });
@@ -177,7 +179,7 @@
             })
         }
 //------------Add TP wash-------------------------------------------
-        function storeFormValues() {
+        function storeFormValues() { //capture form entries
             var form = document.getElementById('createandUpdateForm');
             var wash = {};
             wash.date = form.querySelector('input[name="date"]').value;
@@ -204,32 +206,31 @@
             )}
 
 //----------add from Fleet --------------------------
-    //<!--fleetlist JavaScript-------------------------------------------------->
-        
+     
         var offset = 0; 
-        var limit =10000; // extend limit value to cancel pagination  (I know I'm a savage)
+        var limit =10000; // extend limit value to cancel pagination  (wow much recycling)
 
-        fetchPopulateFleet(); 
+        fetchPopulateFleet(); // reusing paginated fleetlist function from fleet_list.html
         function fetchPopulateFleet(){
             toggleVisibility('loading-indicator')
             $.ajax({
-                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, // URL of the Flask route, that contains the DAO function to access mysql with variables for paginated list
+                url: "/getall_eqSQL?offset=" + offset + "&limit=" + limit, 
                 method: "GET", 
-                dataType: "json", // expected data format as data in flask is jsonified
-                success: function(data) { // data = DAO.getAll()
+                dataType: "json", 
+                success: function(data) { 
                     toggleVisibility('loading-indicator')
-                    populateTableFleet(data); // java function defined below to populate table
+                    populateTableFleet(data);
                 },
-                error: function(xhr, status, error) { // error handling + write error to console
+                error: function(xhr, status, error) {
                     console.error("Error fetching data:", error);
                 }
             });
         }
 
-        function populateTableFleet(data) { // populate table function called above
-            var tableBody = $('#full_list_table tbody'); // this is the HTML table element where it populates
-            tableBody.empty(); // Clear existing rows if there was anything in the table already
-            data.forEach(function(row) { // populate from json and assign each to columns
+        function populateTableFleet(data) { 
+            var tableBody = $('#full_list_table tbody');
+            tableBody.empty(); 
+            data.forEach(function(row) {
                 var newRow = '<tr>' +
                     '<td>' + row.id + '</td>' +
                     '<td>' + row.FleetNumber + '</td>' +
@@ -245,9 +246,9 @@
 // table search from fleet -----------------------------------------------------------------------------------------
         function filterTable() {
                 var input, filter, table, tr, td, i, txtValue;
-                input = document.getElementById("myInput");
-                filter = input.value.toUpperCase();
-                table = document.getElementById("full_list_table");
+                input = document.getElementById("myInput"); // my search entry
+                filter = input.value.toUpperCase(); // capitalise entry
+                table = document.getElementById("full_list_table"); //get row data
                 tr = table.getElementsByTagName("tr");
                 for (i = 0; i < tr.length; i++) {
                     td = tr[i].getElementsByTagName("td")[1]; // Index 1 corresponds to the FleetNumber column
@@ -268,7 +269,7 @@
 
 function doAdd(linkElement) {
 
-    //document.getElementById('myInput').value = '';// reset searchbox
+    //document.getElementById('myInput').value = '';// reset searchbox 
     //filterTable()
     var tableHeaders = document.querySelectorAll("#full_list_table th");
     var rowElement = linkElement.parentNode.parentNode;
